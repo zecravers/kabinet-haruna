@@ -27,9 +27,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return 'LARAVEL HIDUP';
-});
+Route::get('/', [KegiatanController::class, 'index'])->name('kegiatan.index');
 /*
 |--------------------------------------------------------------------------
 | Kegiatan
