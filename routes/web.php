@@ -1,13 +1,8 @@
 <?php
-use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KegiatanController;
-
-Route::get('/', function () {
-    return 'LARAVEL HIDUP';
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +27,9 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 
-
+Route::get('/', function () {
+    return 'LARAVEL HIDUP';
+});
 /*
 |--------------------------------------------------------------------------
 | Kegiatan
