@@ -27,7 +27,9 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [KegiatanController::class, 'index'])->name('kegiatan.index');
+Route::get('/', function () {
+    return redirect('/login');
+});
 /*
 |--------------------------------------------------------------------------
 | Kegiatan
