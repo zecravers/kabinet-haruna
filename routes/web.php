@@ -47,8 +47,8 @@ Route::post('/store', [KegiatanController::class, 'store'])->name('kegiatan.stor
 Route::get('/edit/{id}', [KegiatanController::class, 'edit'])->name('kegiatan.edit');
 Route::post('/update/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
 
-Route::delete('/delete/{id}', [KegiatanController::class, 'destroy'])->name('kegiatan.destroy');
-
+Route::delete('/delete/{id}', [KegiatanController::class, 'destroy'])
+    ->name('kegiatan.destroy');
 
 /*
 |--------------------------------------------------------------------------

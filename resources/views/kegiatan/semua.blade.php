@@ -358,7 +358,7 @@ data-lokasi="{{ $item->lokasi }}">
 Edit
 </button>
 
-<form action="{{ route('kegiatan.destroy',$item->id) }}" method="POST">
+<form action="{{ route('kegiatan.destroy', $item->id) }}" method="POST">
     @csrf
     @method('DELETE')
 
