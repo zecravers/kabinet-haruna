@@ -118,7 +118,7 @@ $status = $datetime->isPast()
     $bulan = $request->bulan ?? date('m');
     $tahun = $request->tahun ?? date('Y');
 
-    $jumlahHari = cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun);
+    $jumlahHari = date('t', strtotime("$tahun-$bulan-01"));
 
     $startDay = date('N', strtotime($tahun . '-' . $bulan . '-01'));
 
