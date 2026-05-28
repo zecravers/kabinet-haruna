@@ -358,9 +358,13 @@ data-lokasi="{{ $item->lokasi }}">
 Edit
 </button>
 
-<form action="{{ route('kegiatan.delete',$item->id) }}" method="GET">
+<form action="{{ route('kegiatan.destroy',$item->id) }}" method="POST">
+    @csrf
+    @method('DELETE')
 
-<button type="button" class="btn delete deleteBtn">Delete</button>
+    <button type="button" class="btn delete deleteBtn">
+        Delete
+    </button>
 </form>
 
 </div>
@@ -474,7 +478,7 @@ editTanggal.value=this.dataset.tanggal;
 editWaktu.value=this.dataset.waktu;
 editLokasi.value=this.dataset.lokasi;
 
-editForm.action="/kegiatan/"+this.dataset.id;
+editForm.action="/update/"+this.dataset.id;
 popupEdit.classList.add('active');
 }
 });
