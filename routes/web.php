@@ -45,7 +45,7 @@ Route::get('/tambah', [KegiatanController::class, 'create'])->name('kegiatan.cre
 Route::post('/store', [KegiatanController::class, 'store'])->name('kegiatan.store');
 
 Route::get('/edit/{id}', [KegiatanController::class, 'edit'])->name('kegiatan.edit');
-Route::post('/update/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
+Route::put('/update/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
 
 Route::delete('/delete/{id}', [KegiatanController::class, 'destroy'])
     ->name('kegiatan.destroy');
