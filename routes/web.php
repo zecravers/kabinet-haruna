@@ -42,8 +42,7 @@ Route::get('/edit/{id}', [KegiatanController::class, 'edit'])->name('kegiatan.ed
 Route::post('/update/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
 
 Route::get('/delete/{id}', [KegiatanController::class, 'destroy'])->name('kegiatan.delete');
-Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
-Route::resource('kegiatan', KegiatanController::class);
+
 
 /*
 |--------------------------------------------------------------------------
