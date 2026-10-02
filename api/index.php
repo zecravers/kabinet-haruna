@@ -18,41 +18,43 @@ foreach ([
     }
 }
 
-// Bersihkan file view yang sempat gagal ter-compile sebelumnya
+// Bersihkan view cache lama agar tidak error
 foreach (glob($storagePath . '/framework/views/*.php') ?: [] as $compiledFile) {
     @unlink($compiledFile);
 }
 
-// 2. Siapkan file SQLite cadangan di /tmp
-$sqlitePath = '/tmp/database.sqlite';
-if (!file_exists($sqlitePath)) {
-    touch($sqlitePath);
-}
+// 2. Ambil URL koneksi dari Vercel Storage (POSTGRES_URL atau DATABASE_URL)
+$dbUrl = getenv('POSTGRES_URL') ?: (getenv('DATABASE_URL') ?: ($_ENV['POSTGRES_URL'] ?? ($_ENV['DATABASE_URL'] ?? ($_SERVER['POSTGRES_URL'] ?? ($_SERVER['DATABASE_URL'] ?? null)))));
 
-// 3. Ambil kredensial Neon Postgres dari Environment Variables Vercel
-$pgHost = getenv('POSTGRES_HOST') ?: ($_ENV['POSTGRES_HOST'] ?? ($_SERVER['POSTGRES_HOST'] ?? null));
-$pgDb   = getenv('POSTGRES_DATABASE') ?: ($_ENV['POSTGRES_DATABASE'] ?? ($_SERVER['POSTGRES_DATABASE'] ?? 'neondb'));
-$pgUser = getenv('POSTGRES_USER') ?: ($_ENV['POSTGRES_USER'] ?? ($_SERVER['POSTGRES_USER'] ?? ''));
-$pgPass = getenv('POSTGRES_PASSWORD') ?: ($_ENV['POSTGRES_PASSWORD'] ?? ($_SERVER['POSTGRES_PASSWORD'] ?? ''));
+$pgHost = '';
+$pgDb   = 'neondb';
+$pgUser = '';
+$pgPass = '';
+$endpointId = '';
 
-$rawDbUrl = getenv('POSTGRES_URL') ?: (getenv('DATABASE_URL') ?: ($_ENV['POSTGRES_URL'] ?? ($_ENV['DATABASE_URL'] ?? null)));
-if (empty($pgHost) && !empty($rawDbUrl)) {
-    $parsed = parse_url($rawDbUrl);
+if (!empty($dbUrl)) {
+    // Parse URL dari format postgres://user:pass@host:5432/dbname?sslmode=require
+    $parsed = parse_url($dbUrl);
     if (!empty($parsed['host'])) {
         $pgHost = $parsed['host'];
-        $pgUser = $parsed['user'] ?? $pgUser;
-        $pgPass = $parsed['pass'] ?? $pgPass;
-        $pgDb   = isset($parsed['path']) ? ltrim($parsed['path'], '/') : $pgDb;
+        $pgUser = $parsed['user'] ?? '';
+        $pgPass = $parsed['pass'] ?? '';
+        $pgDb   = isset($parsed['path']) ? ltrim($parsed['path'], '/') : 'neondb';
+        
+        $hostParts = explode('.', $pgHost);
+        $endpointId = $hostParts[0]; // Contoh: ep-lingering-frog-b8m4icez
     }
 }
 
-// 4. Bersihkan variabel kosong sisa .env.example di Vercel
+// Bersihkan variabel lingkungan kosong
 foreach ($_ENV as $k => $v) {
     if (in_array($v, ['', 'null'], true)) {
         unset($_ENV[$k], $_SERVER[$k]);
         putenv($k);
     }
 }
+
+$sslModeWithEndpoint = "require;options='--endpoint={$endpointId}'";
 
 $forcedEnv = [
     'APP_NAME'               => 'Kabinet Haruna',
@@ -77,24 +79,14 @@ $forcedEnv = [
     'APP_EVENTS_CACHE'       => $storagePath . '/bootstrap/cache/events.php',
 ];
 
-// 5. Konfigurasi Koneksi Permanen Neon Postgres via sslmode DSN injection
 $activeDbDriver = 'sqlite-tmp';
-$sslModeWithEndpoint = 'require';
 
 if (!empty($pgHost)) {
-    $hostParts = explode('.', $pgHost);
-    $endpointId = $hostParts[0];
-
-    unset($_ENV['DATABASE_URL'], $_SERVER['DATABASE_URL'], $_ENV['DB_URL'], $_SERVER['DB_URL'], $_ENV['POSTGRES_URL'], $_SERVER['POSTGRES_URL']);
-    putenv('DATABASE_URL');
-    putenv('DB_URL');
-    putenv('POSTGRES_URL');
-
-    $sslModeWithEndpoint = "require;options='--endpoint={$endpointId}'";
+    // Uji koneksi PDO langsung ke Neon Postgres
     $testDsn = "pgsql:host='{$pgHost}';dbname='{$pgDb}';port=5432;sslmode={$sslModeWithEndpoint}";
-
     try {
         $testPdo = new PDO($testDsn, $pgUser, $pgPass, [PDO::ATTR_TIMEOUT => 5]);
+        
         $forcedEnv['DB_CONNECTION'] = 'pgsql';
         $forcedEnv['DB_HOST']       = $pgHost;
         $forcedEnv['DB_PORT']       = '5432';
@@ -102,13 +94,23 @@ if (!empty($pgHost)) {
         $forcedEnv['DB_USERNAME']   = $pgUser;
         $forcedEnv['DB_PASSWORD']   = $pgPass;
         $forcedEnv['DB_SSLMODE']    = $sslModeWithEndpoint;
+        
+        // Pakai format URL standar dengan opsi endpoint Neon
+        $encodedUser = rawurlencode($pgUser);
+        $encodedPass = rawurlencode($pgPass);
+        $neonUrl = "pgsql://{$encodedUser}:{$encodedPass}@{$pgHost}:5432/{$pgDb}?sslmode=require&options=endpoint%3D{$endpointId}";
+        $forcedEnv['DB_URL']       = $neonUrl;
+        $forcedEnv['DATABASE_URL'] = $neonUrl;
+        
         $activeDbDriver = 'neon-pgsql-permanent';
     } catch (\Throwable $e) {
-        $activeDbDriver = 'sqlite-fallback';
+        $activeDbDriver = 'sqlite-fallback: ' . $e->getMessage();
     }
 }
 
 if ($activeDbDriver !== 'neon-pgsql-permanent') {
+    $sqlitePath = '/tmp/database.sqlite';
+    if (!file_exists($sqlitePath)) { touch($sqlitePath); }
     $forcedEnv['DB_CONNECTION'] = 'sqlite';
     $forcedEnv['DB_DATABASE']   = $sqlitePath;
 }
@@ -124,25 +126,19 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->useStoragePath($storagePath);
 
-// 6. Jalankan perbaikan otomatis @foreach, pembuatan tabel, & AUTO-UPDATE status tanggal (WIB)
+// Precompiler Blade untuk mencegah error spasi @foreach
 $app->booted(function ($app) use ($forcedEnv, $sslModeWithEndpoint) {
-    // AUTO-FIXER BLADE: Perbaiki spasi @foreach / @forelse / @for yang terhapus saat copy-paste
     try {
         $blade = $app->make('blade.compiler');
         $blade->precompiler(function ($string) {
-            // Pisahkan "as$" menjadi "as $" (contoh: @foreach($data as$d) -> @foreach($data as $d))
             $string = preg_replace('/(@(?:foreach|forelse)\s*\([^)]*?)\bas\$/', '$1as $', $string);
-            // Pisahkan "$varas" menjadi "$var as"
             $string = preg_replace('/(@(?:foreach|forelse)\s*\(\s*\$[a-zA-Z0-9_>-]+)as\b/', '$1 as ', $string);
             return $string;
         });
-    } catch (\Throwable $e) {
-        // Abaikan jika precompiler gagal
-    }
+    } catch (\Throwable $e) {}
 
     if ($forcedEnv['DB_CONNECTION'] === 'pgsql') {
         $app['config']->set('database.default', 'pgsql');
-        $app['config']->set('database.connections.pgsql.url', null);
         $app['config']->set('database.connections.pgsql.host', $forcedEnv['DB_HOST']);
         $app['config']->set('database.connections.pgsql.port', '5432');
         $app['config']->set('database.connections.pgsql.database', $forcedEnv['DB_DATABASE']);
@@ -167,6 +163,7 @@ $app->booted(function ($app) use ($forcedEnv, $sslModeWithEndpoint) {
                 $table->timestamps();
             });
 
+            // 49 Data Awal Bawaan
             $initialData = [
                 ['nama_kegiatan' => 'TUMISS', 'deskripsi' => null, 'tanggal' => '2026-04-15', 'waktu' => '15:00:00', 'lokasi' => 'Polimedia Gedung E, Lt 2.9 & 2.10', 'status' => 'selesai', 'created_at' => '2026-04-19 00:33:02', 'updated_at' => '2026-04-19 00:33:02'],
                 ['nama_kegiatan' => 'BANK ASPIRASI 1', 'deskripsi' => null, 'tanggal' => '2026-02-10', 'waktu' => '15:00:00', 'lokasi' => 'Whats App', 'status' => 'selesai', 'created_at' => '2026-04-19 01:29:09', 'updated_at' => '2026-04-19 01:29:09'],
@@ -223,7 +220,7 @@ $app->booted(function ($app) use ($forcedEnv, $sslModeWithEndpoint) {
             $db->table('kegiatans')->insert($initialData);
         }
 
-        // AUTO-UPDATE STATUS: Ubah kegiatan yang tanggal/waktunya sudah lewat dari waktu sekarang (WIB) menjadi 'selesai'
+        // AUTO-UPDATE STATUS
         $today = date('Y-m-d');
         $nowTime = date('H:i:s');
 
@@ -238,9 +235,7 @@ $app->booted(function ($app) use ($forcedEnv, $sslModeWithEndpoint) {
             })
             ->update(['status' => 'selesai', 'updated_at' => date('Y-m-d H:i:s')]);
 
-    } catch (\Throwable $e) {
-        // Abaikan jika gagal inisialisasi
-    }
+    } catch (\Throwable $e) {}
 });
 
 $request = Illuminate\Http\Request::capture();
