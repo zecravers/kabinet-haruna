@@ -192,4 +192,30 @@ $app->booted(function ($app) {
 });
 
 $request = Illuminate\Http\Request::capture();
-$app->handleRequest($request);
+
+// Jika browser meminta /favicon.ico atau /favicon.png, langsung berikan file logo1.png
+if (in_array($request->getPathInfo(), ['/favicon.ico', '/favicon.png'], true)) {
+    $logoFile = __DIR__ . '/../public/logo/logo1.png';
+    if (file_exists($logoFile)) {
+        header('Content-Type: image/png');
+        header('Cache-Control: public, max-age=86400');
+        readfile($logoFile);
+        exit;
+    }
+}
+
+$response = $app->handle($request);
+
+// Otomatis suntikkan tag favicon logo1.png ke dalam <head> di SEMUA halaman HTML
+$content = $response->getContent();
+if (is_string($content) && stripos($content, '</head>') !== false) {
+    $faviconTags = '<link rel="icon" type="image/png" href="/logo/logo1.png?v=2">'
+                 . '<link rel="shortcut icon" type="image/png" href="/logo/logo1.png?v=2">';
+    // Hapus favicon lama jika ada, lalu pasang favicon logo1.png tepat sebelum </head>
+    $content = preg_replace('/<link[^>]*rel=["\'](?:shortcut )?icon["\'][^>]*>/i', '', $content);
+    $content = str_ireplace('</head>', $faviconTags . "\n</head>", $content);
+    $response->setContent($content);
+}
+
+$response->send();
+$app->terminate($request, $response);
