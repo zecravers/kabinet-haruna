@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Agenda Organisasi</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -23,15 +23,21 @@ display:flex;
 justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#e0f2fe,#f8fafc);
-overflow:hidden;
+overflow-x:hidden;
+overflow-y:auto;
+padding:20px;
+position:relative;
 }
 
 /* BACKGROUND FLOATING */
 .bg{
-position:absolute;
+position:fixed;
+inset:0;
 width:100%;
 height:100%;
 overflow:hidden;
+pointer-events:none;
+z-index:0;
 }
 
 .bubble{
@@ -53,12 +59,13 @@ animation:float 10s infinite ease-in-out;
 
 /* CONTAINER */
 .container{
-width:950px;
+width:100%;
+max-width:950px;
 display:grid;
 grid-template-columns:1fr 1fr;
 border-radius:28px;
 overflow:hidden;
-background:rgba(255,255,255,.65);
+background:rgba(255,255,255,.72);
 backdrop-filter:blur(20px);
 box-shadow:0 30px 60px rgba(0,0,0,.1);
 z-index:2;
@@ -107,7 +114,7 @@ from{opacity:0;transform:translateY(25px);}
 to{opacity:1;transform:translateY(0);}
 }
 
-/* 🔥 TITLE SUPER FIX */
+/* TITLE */
 .title{
 position:relative;
 font-size:30px;
@@ -141,7 +148,7 @@ flex-shrink:0;
 15%, 45%{transform:rotate(14deg);}
 30%{transform:rotate(-8deg);}
 }
-    
+
 /* ICON */
 .title i{
 color:#2563eb;
@@ -185,6 +192,7 @@ border:1px solid #dbeafe;
 outline:none;
 transition:.25s;
 background:#fff;
+font-size:14px;
 }
 
 .input-box input:focus{
@@ -217,6 +225,7 @@ font-weight:700;
 cursor:pointer;
 transition:.25s;
 box-shadow:0 15px 25px rgba(59,130,246,.3);
+font-size:14px;
 }
 
 .btn:hover{
@@ -257,13 +266,45 @@ color:#64748b;
 text-align:center;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE MOBILE */
 @media(max-width:768px){
+body{
+padding:16px;
+}
 .container{
 grid-template-columns:1fr;
+border-radius:22px;
+max-width:440px;
 }
 .left{
-display:none;
+padding:28px 20px 20px;
+}
+.left img{
+width:85px;
+margin-bottom:10px;
+}
+.left h2{
+font-size:18px;
+}
+.left p{
+font-size:12px;
+margin-top:4px;
+}
+.right{
+padding:26px 22px 30px;
+}
+.title{
+font-size:22px;
+justify-content:center;
+}
+.title .wave-icon{
+width:22px;
+height:22px;
+}
+.subtitle{
+text-align:center;
+font-size:12px;
+margin-bottom:20px;
 }
 }
 </style>
@@ -287,15 +328,13 @@ display:none;
 
 <div class="right">
 
-<!-- 🔥 PERUBAHAN DI SINI -->
 <div class="title">
     <svg class="wave-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M407 47c9.4-9.4 24.6-9.4 33.9 0l17.2 17.2c1.9-.1 3.9-.2 5.8-.2h32c26.5 0 48 21.5 48 48v40c0 4.4-3.6 8-8 8s-8-3.6-8-8V112c0-17.7-14.3-32-32-32H464c-11.2 0-21.2 5.8-26.9 14.5L329.4 202.2c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L414.5 71.9c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0L275.5 188.3c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L380.6 38c9.4-9.4 24.6-9.4 33.9 0zM219.5 124.3L339.2 4.6c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L253.4 158.2c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6zm-56.6 56.6L275 68.8c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L196.8 214.8c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6zM112 248v-8c0-13.3 10.7-24 24-24s24 10.7 24 24v80c0 8.8 7.2 16 16 16s16-7.2 16-16V176l157.1 157.1c35.1 35.1 35.1 92.1 0 127.3l-7.5 7.5c-46.9 46.9-122.8 46.9-169.7 0l-42.6-42.6C116.8 412.8 112 395.9 112 378.3V248z"/>
     </svg>
     <span>SELAMAT DATANG!</span>
 </div>
-    
-    
+
 <div class="subtitle">Silakan login untuk melanjutkan ke sistem</div>
 
 @if(session('error'))
