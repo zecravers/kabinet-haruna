@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TAMBAH KEGIATAN</title>
 
@@ -17,7 +17,6 @@
     font-family:'Poppins',sans-serif;
 }
 
-/* BACKGROUND */
 html{
     min-height:100%;
     background:
@@ -27,12 +26,41 @@ html{
 }
 
 body{
-    min-height:100%;
+    min-height:100vh;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
     padding:40px 20px;
 }
+
+/* MOBILE TOPBAR & HAMBURGER DRAWER */
+.mobile-topbar{display:none;width:100%;}
+.sidebar-overlay{
+display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);
+backdrop-filter:blur(4px);z-index:998;
+}
+.sidebar-overlay.active{display:block;}
+.mobile-drawer{
+position:fixed;top:0;left:0;bottom:0;width:270px;max-width:82vw;
+background:rgba(255,255,255,.96);backdrop-filter:blur(24px);
+box-shadow:20px 0 50px rgba(15,23,42,.18);transform:translateX(-105%);
+transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:999;padding:22px 20px;overflow-y:auto;
+}
+.mobile-drawer.open{transform:translateX(0);}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.drawer-header img{width:140px;}
+.close-drawer-btn{
+width:36px;height:36px;border-radius:10px;border:none;background:#eff6ff;
+color:#1e3a8a;font-size:18px;font-weight:700;cursor:pointer;
+}
+.drawer-menu a{
+display:flex;align-items:center;gap:12px;padding:13px 14px;margin:8px 0;
+border-radius:14px;text-decoration:none;color:#1e3a8a;background:rgba(239,246,255,.7);
+font-weight:600;transition:.25s;
+}
+.drawer-menu a:hover{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;}
+.side-icon{width:18px;height:18px;stroke:currentColor;stroke-width:2.2;flex-shrink:0;}
 
 /* WRAPPER */
 .wrapper{
@@ -49,100 +77,28 @@ body{
     background:rgba(255,255,255,0.18);
     backdrop-filter:blur(30px);
     -webkit-backdrop-filter:blur(30px);
-
     border-radius:28px;
     padding:40px 30px;
-
-    /* GLASS BORDER */
     border:1px solid rgba(255,255,255,0.35);
-
-    /* DEPTH */
-    box-shadow:
-        0 25px 60px rgba(0,0,0,0.12),
-        inset 0 1px 1px rgba(255,255,255,0.6);
-
+    box-shadow:0 25px 60px rgba(0,0,0,0.12),inset 0 1px 1px rgba(255,255,255,0.6);
     overflow:hidden;
     transition:0.35s ease;
 }
 
-/* ✨ SOFT LIGHT (ATAS, TIDAK FULL) */
-.left::before{
-    content:'';
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:120px; /* penting: biar gak nutup semua */
-
-    border-radius:28px;
-
-    background:linear-gradient(
-        120deg,
-        rgba(255,255,255,0.7),
-        rgba(255,255,255,0.2),
-        transparent
-    );
-
-    opacity:0.45;
-    pointer-events:none;
-}
-
-/* 🔵 GLOW HALUS */
-.left::after{
-    content:'';
-    position:absolute;
-    inset:0;
-    border-radius:28px;
-
-    background:radial-gradient(
-        circle at top left,
-        rgba(59,130,246,0.25),
-        transparent 65%
-    );
-
-    opacity:0.35;
-    pointer-events:none;
-}
-
-/* 🔥 HOVER EFFECT */
-.left:hover{
-    transform:translateY(-6px) scale(1.01);
-
-    box-shadow:
-        0 35px 80px rgba(0,0,0,0.18),
-        inset 0 1px 2px rgba(255,255,255,0.7);
-}
-
-/* ICON BOX */
 .left-icon{
     width:70px;
     height:70px;
     border-radius:20px;
-
     display:flex;
     align-items:center;
     justify-content:center;
-
     font-size:28px;
     color:white;
-
     background:linear-gradient(135deg,#2563eb,#3b82f6);
-
-    box-shadow:
-        0 12px 30px rgba(37,99,235,0.45),
-        inset 0 2px 4px rgba(255,255,255,0.3);
-
-    transition:0.3s;
-
+    box-shadow:0 12px 30px rgba(37,99,235,0.45);
     margin-bottom:18px;
 }
 
-/* ICON ANIMATION */
-.left:hover .left-icon{
-    transform:scale(1.08);
-}
-
-/* TEXT */
 .left h2{
     font-size:26px;
     font-weight:800;
@@ -155,7 +111,6 @@ body{
     margin-bottom:30px;
 }
 
-/* FEATURE LIST */
 .feature{
     display:flex;
     align-items:center;
@@ -163,34 +118,29 @@ body{
     margin-bottom:18px;
 }
 
-/* ICON FEATURE FIX (BIAR GAK JELEK) */
 .feature i{
     width:36px;
     height:36px;
-
     display:flex;
     align-items:center;
     justify-content:center;
-
     background:linear-gradient(135deg,#2563eb,#3b82f6);
     color:white;
-
     border-radius:12px;
-
     font-size:14px;
-
     box-shadow:0 6px 15px rgba(37,99,235,0.35);
+    flex-shrink:0;
 }
 
 /* RIGHT CARD */
 .card{
-    background:rgba(255,255,255,0.65);
+    background:rgba(255,255,255,0.72);
     backdrop-filter:blur(18px);
     border-radius:24px;
     padding:30px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.08);
 }
 
-/* HEADER */
 .header{
     display:flex;
     align-items:center;
@@ -198,10 +148,9 @@ body{
     margin-bottom:20px;
 }
 
-
 .header-logo img{
-    width: 70px;
-    height: 70px;
+    width:70px;
+    height:70px;
     object-fit:contain;
 }
 
@@ -216,107 +165,49 @@ body{
     color:#64748b;
 }
 
-/* FORM */
 .group{margin-bottom:16px;}
 
 label{
     font-size:13px;
     font-weight:600;
     color:#334155;
+    display:block;
+    margin-bottom:6px;
 }
 
-/* WRAPPER */
 .input-wrap{
     position:relative;
     transition:all 0.25s ease;
 }
 
-/* ICON (FIX BIAR GAK PUDAR) */
 .input-wrap i{
     position:absolute;
     left:14px;
     top:50%;
     transform:translateY(-50%);
-
-    color:#2563eb; /* 🔥 warna tegas */
+    color:#2563eb;
     font-size:16px;
-
-    opacity:1 !important; /* ❗ paksa tidak pudar */
-
-    /* 🔥 bikin lebih tajam & hidup */
-    filter:
-        drop-shadow(0 2px 6px rgba(37,99,235,0.6))
-        brightness(1.1);
-
-    transition:all 0.25s ease;
+    z-index:5;
 }
 
-.input-wrap i{
-    z-index:5; /* ❗ penting */
-}
-
-/* INPUT */
 input, select{
     width:100%;
     padding:13px 14px 13px 42px;
     border-radius:16px;
-
     border:none;
-    outline:none; /* ❌ hapus border hitam */
-
-    background:rgba(255,255,255,0.75);
-    backdrop-filter:blur(10px);
-
+    outline:none;
+    background:rgba(255,255,255,0.85);
     font-size:14px;
-
-    box-shadow:
-        0 2px 6px rgba(0,0,0,0.05),
-        0 0 0 1px rgba(226,232,240,0.8);
-
+    box-shadow:0 2px 6px rgba(0,0,0,0.05),0 0 0 1px rgba(226,232,240,0.8);
     transition:all 0.25s ease;
 }
 
-/* HOVER HALUS */
-.input-wrap:hover input{
-    box-shadow:
-        0 6px 18px rgba(0,0,0,0.08),
-        0 0 0 1px rgba(226,232,240,1);
-}
-
-/* 🔥 FOCUS (POP + GLOW) */
-.input-wrap:focus-within{
-    transform:translateY(-2px);
-}
-
-/* GLOW TANPA BORDER */
 .input-wrap:focus-within input,
 .input-wrap:focus-within select{
     background:white;
-
-    box-shadow:
-        0 10px 30px rgba(59,130,246,0.25),
-        0 0 18px rgba(59,130,246,0.35);
+    box-shadow:0 10px 30px rgba(59,130,246,0.2),0 0 0 2px rgba(59,130,246,0.35);
 }
 
-/* ICON IKUT HIDUP */
-.input-wrap:focus-within i{
-    transform:translateY(-50%) scale(1.15);
-    color:#1d4ed8;
-    filter:drop-shadow(0 4px 10px rgba(37,99,235,0.6));
-}
-
-/* ✨ ANIMASI POP YANG BENAR */
-input:focus{
-    animation:inputPop 0.25s ease;
-}
-
-@keyframes inputPop{
-    0%{ transform:scale(1); }
-    50%{ transform:scale(1.02); }
-    100%{ transform:scale(1.02); }
-}
-
-/* BUTTON */
 .btn{
     width:100%;
     padding:14px;
@@ -326,9 +217,8 @@ input:focus{
     color:white;
     font-weight:700;
     cursor:pointer;
-    position:relative;
-    overflow:hidden;
     transition:0.25s;
+    font-size:14px;
 }
 
 .btn:hover{
@@ -336,30 +226,6 @@ input:focus{
     box-shadow:0 10px 25px rgba(37,99,235,0.4);
 }
 
-.btn:active{
-    transform:scale(0.96);
-}
-
-/* SHINE */
-.btn::before{
-    content:'';
-    position:absolute;
-    inset:0;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
-    opacity:0;
-}
-
-.btn:hover::before{
-    opacity:1;
-    animation:shine 1s linear;
-}
-
-@keyframes shine{
-    from{transform:translateX(-100%)}
-    to{transform:translateX(100%)}
-}
-
-/* BACK BUTTON */
 .btn-back{
     display:flex;
     justify-content:center;
@@ -371,55 +237,86 @@ input:focus{
     text-decoration:none;
     font-weight:600;
     color:#2563eb;
-    background:rgba(255,255,255,0.6);
-    backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,0.5);
+    background:rgba(255,255,255,0.7);
+    border:1px solid rgba(255,255,255,0.6);
+    font-size:14px;
 }
 
-.btn-back:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(37,99,235,0.2);
-}
-
-/* RESPONSIVE */
 @media(max-width:900px){
-    .wrapper{
-        grid-template-columns:1fr;
+    .wrapper{grid-template-columns:1fr;}
+}
+
+@media(max-width:768px){
+    body{padding:0 0 28px 0;justify-content:flex-start;}
+    .mobile-topbar{
+        display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+        background:rgba(255,255,255,.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:900;
+        box-shadow:0 4px 20px rgba(15,23,42,.06);margin-bottom:18px;
     }
+    .hamburger-btn{
+        width:42px;height:42px;border-radius:12px;border:1px solid #dbeafe;background:#fff;
+        display:flex;align-items:center;justify-content:center;cursor:pointer;
+    }
+    .hamburger-btn svg{width:22px;height:22px;stroke:#1e3a8a;stroke-width:2.4;}
+    .mobile-topbar-logo{height:34px;width:auto;}
+    .wrapper{padding:0 16px;gap:18px;}
+    .left{display:none;}
+    .card{padding:22px 18px;border-radius:20px;}
+    .header-logo img{width:54px;height:54px;}
+    .title{font-size:18px;}
+    .subtitle{font-size:12px;}
 }
 </style>
 </head>
 
 <body>
 
+<!-- TOPBAR & DRAWER MOBILE -->
+<div class="mobile-topbar">
+    <button class="hamburger-btn" onclick="toggleDrawer()" aria-label="Buka Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+    </button>
+    <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="mobile-topbar-logo">
+</div>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeDrawer()"></div>
+<div id="mobileDrawer" class="mobile-drawer">
+    <div class="drawer-header">
+        <img src="{{ asset('logo/logo.png') }}" alt="Logo">
+        <button class="close-drawer-btn" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-menu">
+        <a href="/"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Dashboard</a>
+        <a href="/tambah"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Tambah Agenda</a>
+        <a href="{{ route('kegiatan.kalender') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender</a>
+        <a href="{{ route('kegiatan.akan') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Akan Datang</a>
+        <a href="{{ route('kegiatan.selesai') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L16 9"/></svg>Selesai</a>
+    </div>
+</div>
+
 <div class="wrapper">
 
-<!-- LEFT -->
 <div class="left">
     <div class="left-icon">
         <i class="fa-solid fa-clipboard-list"></i>
     </div>
-
     <h2>TAMBAH KEGIATAN</h2>
     <p>Isi data kegiatan organisasi dengan lengkap untuk mencatat kegiatan baru.</p>
-
     <div class="feature">
         <i class="fa-solid fa-calendar"></i>
         <div>Catat kegiatan dengan mudah</div>
     </div>
-
     <div class="feature">
         <i class="fa-solid fa-location-dot"></i>
         <div>Kelola lokasi kegiatan</div>
     </div>
-
     <div class="feature">
         <i class="fa-solid fa-clock"></i>
         <div>Pantau jadwal kegiatan</div>
     </div>
 </div>
 
-<!-- RIGHT -->
 <div class="card">
 
 <div class="header">
@@ -439,7 +336,7 @@ input:focus{
 <label>Nama Kegiatan</label>
 <div class="input-wrap">
 <i class="fa-solid fa-pen"></i>
-<input type="text" name="nama_kegiatan" required>
+<input type="text" name="nama_kegiatan" placeholder="Masukkan nama kegiatan" required>
 </div>
 </div>
 
@@ -463,7 +360,7 @@ input:focus{
 <label>Lokasi</label>
 <div class="input-wrap">
 <i class="fa-solid fa-location-dot"></i>
-<input type="text" name="lokasi" required>
+<input type="text" name="lokasi" placeholder="Masukkan lokasi kegiatan" required>
 </div>
 </div>
 
@@ -471,9 +368,9 @@ input:focus{
 <label>Status</label>
 <div class="input-wrap">
 <i class="fa-solid fa-flag"></i>
-<select>
-<option>Akan Datang</option>
-<option>Selesai</option>
+<select name="status" required>
+<option value="akan datang">Akan Datang</option>
+<option value="selesai">Selesai</option>
 </select>
 </div>
 </div>
@@ -493,6 +390,17 @@ Kembali ke Dashboard
 </div>
 
 </div>
+
+<script>
+function toggleDrawer(){
+    document.getElementById('mobileDrawer').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeDrawer(){
+    document.getElementById('mobileDrawer').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+</script>
 
 </body>
 </html>
