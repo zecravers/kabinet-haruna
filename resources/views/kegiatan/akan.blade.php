@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AGENDA AKAN DATANG</title>
 
@@ -24,7 +24,36 @@ linear-gradient(135deg,#e0f2fe,#f8fafc);
 min-height:100vh;
 padding:40px;
 color:#1e293b;
+overflow-x:hidden;
 }
+
+/* MOBILE TOPBAR & HAMBURGER DRAWER */
+.mobile-topbar{display:none;}
+.sidebar-overlay{
+display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);
+backdrop-filter:blur(4px);z-index:998;
+}
+.sidebar-overlay.active{display:block;}
+.mobile-drawer{
+position:fixed;top:0;left:0;bottom:0;width:270px;max-width:82vw;
+background:rgba(255,255,255,.96);backdrop-filter:blur(24px);
+box-shadow:20px 0 50px rgba(15,23,42,.18);transform:translateX(-105%);
+transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:999;padding:22px 20px;overflow-y:auto;
+}
+.mobile-drawer.open{transform:translateX(0);}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.drawer-header img{width:140px;}
+.close-drawer-btn{
+width:36px;height:36px;border-radius:10px;border:none;background:#eff6ff;
+color:#1e3a8a;font-size:18px;font-weight:700;cursor:pointer;
+}
+.drawer-menu a{
+display:flex;align-items:center;gap:12px;padding:13px 14px;margin:8px 0;
+border-radius:14px;text-decoration:none;color:#1e3a8a;background:rgba(239,246,255,.7);
+font-weight:600;transition:.25s;
+}
+.drawer-menu a:hover{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;}
+.side-icon{width:18px;height:18px;stroke:currentColor;stroke-width:2.2;flex-shrink:0;}
 
 .container{
 max-width:1100px;
@@ -43,22 +72,17 @@ margin-bottom:25px;
 width:80px;
 height:80px;
 object-fit:contain;
+flex-shrink:0;
 }
 
 .title{
 font-size:32px;
 font-weight:800;
-
 background:linear-gradient(135deg,#1d4ed8,#38bdf8);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
-
-text-shadow:
-0 4px 10px rgba(37,99,235,0.25),
-0 1px 2px rgba(0,0,0,0.08);
-
-/* sedikit glow */
 filter:drop-shadow(0 6px 18px rgba(59,130,246,0.25));
+line-height:1.2;
 }
 
 .subtitle{
@@ -76,18 +100,13 @@ margin:20px 0 30px;
 
 .search{
 flex:1;
-padding:14px 16px;
+padding:14px 16px 14px 45px;
 border-radius:16px;
 border:none;
 background:rgba(255,255,255,0.75);
 backdrop-filter:blur(10px);
 box-shadow:0 0 0 1px #e2e8f0;
 transition:all 0.25s ease;
-}
-
-/* ICON 🔍 */
-.search{
-padding-left:45px;
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
 background-repeat:no-repeat;
 background-position:14px center;
@@ -96,41 +115,7 @@ background-size:18px;
 
 .search:focus{
 outline:none;
-transform:scale(1.02);
-box-shadow:
-0 0 0 2px rgba(59,130,246,0.5),
-0 0 18px rgba(59,130,246,0.35),
-0 10px 25px rgba(59,130,246,0.15);
-}
-
-/* SEARCH + FILTER POP EFFECT */
-.search,
-.filter{
-transition: all 0.25s ease;
-position: relative;
-}
-
-/* hover naik */
-.search:hover,
-.filter:hover{
-transform: translateY(-3px) scale(1.02);
-box-shadow:
-0 12px 30px rgba(59,130,246,0.18),
-0 0 0 2px rgba(59,130,246,0.08);
-}
-
-/* klik/focus */
-.search:focus,
-.filter:focus{
-transform: scale(1.04);
-box-shadow:
-0 0 0 3px rgba(59,130,246,0.25),
-0 10px 30px rgba(59,130,246,0.25);
-}
-
-.search, .filter{
-position: relative;
-overflow: hidden;
+box-shadow:0 0 0 2px rgba(59,130,246,0.5),0 10px 25px rgba(59,130,246,0.15);
 }
 
 /* DROPDOWN */
@@ -138,62 +123,23 @@ overflow: hidden;
 appearance:none;
 -webkit-appearance:none;
 -moz-appearance:none;
-
-padding:14px 50px 14px 18px; /* kasih ruang kanan */
-
+padding:14px 50px 14px 18px;
 border-radius:18px;
 border:none;
-
 background-color:rgba(255,255,255,0.85);
-
-/* ICON PANAH */
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%233b82f6' stroke-width='2.5' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-
 background-repeat:no-repeat;
 background-position:right 16px center;
 background-size:18px;
-
 font-weight:600;
 cursor:pointer;
-
 box-shadow:0 0 0 1px #e2e8f0;
-}
-
-.filter:hover{
-transform:translateY(-2px);
-box-shadow:0 10px 25px rgba(59,130,246,0.25);
+transition:all 0.25s ease;
 }
 
 .filter:focus{
 outline:none;
-box-shadow:
-0 0 0 3px rgba(59,130,246,0.25),
-0 10px 25px rgba(59,130,246,0.25);
-}
-
-.ripple{
-position:absolute;
-border-radius:50%;
-background:rgba(59,130,246,.25);
-transform:scale(0);
-animation:rippleAnim .6s linear;
-pointer-events:none;
-}
-
-@keyframes rippleAnim{
-to{
-transform:scale(4);
-opacity:0;
-}
-}
-
-.search::placeholder{
-transition:0.3s;
-}
-
-.search:focus::placeholder{
-opacity:0.5;
-transform:translateX(5px);
+box-shadow:0 0 0 3px rgba(59,130,246,0.25);
 }
 
 /* MONTH */
@@ -209,6 +155,7 @@ color:#2563eb;
 display:flex;
 justify-content:space-between;
 align-items:center;
+gap:14px;
 background:rgba(255,255,255,0.75);
 backdrop-filter:blur(16px);
 padding:18px;
@@ -216,10 +163,6 @@ border-radius:18px;
 margin-bottom:14px;
 box-shadow:0 12px 25px rgba(0,0,0,0.06);
 transition:0.3s;
-}
-
-.card{
-transition:0.3s, opacity 0.2s;
 }
 
 .card:hover{
@@ -231,6 +174,8 @@ box-shadow:0 18px 35px rgba(0,0,0,0.08);
 display:flex;
 gap:14px;
 align-items:center;
+flex:1;
+min-width:0;
 }
 
 .card-title{
@@ -251,37 +196,16 @@ border-radius:999px;
 font-size:12px;
 font-weight:800;
 color:#fff;
+white-space:nowrap;
+flex-shrink:0;
 position:relative;
 overflow:hidden;
 box-shadow:0 6px 18px rgba(0,0,0,0.2);
 }
 
-.long{
-background:linear-gradient(135deg,#3b82f6,#60a5fa);
-}
-
-.near{
-background:linear-gradient(135deg,#f59e0b,#fbbf24);
-}
-
-.soon{
-background:linear-gradient(135deg,#ef4444,#f87171);
-}
-
-.badge::before{
-content:'';
-position:absolute;
-top:0;
-left:-100%;
-width:100%;
-height:100%;
-background:linear-gradient(120deg,transparent,rgba(255,255,255,0.6),transparent);
-transition:0.6s;
-}
-
-.badge:hover::before{
-left:100%;
-}
+.long{background:linear-gradient(135deg,#3b82f6,#60a5fa);}
+.near{background:linear-gradient(135deg,#f59e0b,#fbbf24);}
+.soon{background:linear-gradient(135deg,#ef4444,#f87171);}
 
 /* COUNTDOWN */
 .countdown{
@@ -305,7 +229,7 @@ background:linear-gradient(135deg,#3b82f6,#60a5fa);
 width:0%;
 }
 
-/* BUTTON FIX */
+/* BUTTON */
 .back{
 display:inline-flex;
 align-items:center;
@@ -317,41 +241,66 @@ color:#fff;
 font-weight:700;
 text-decoration:none;
 box-shadow:0 10px 25px rgba(37,99,235,0.35);
-position:relative;
-overflow:hidden;
 transition:0.25s;
 margin-top:20px;
 }
 
-
-.back:hover{
-transform:translateY(-3px) scale(1.03);
-box-shadow:0 15px 35px rgba(37,99,235,0.5);
+/* RESPONSIVE MOBILE */
+@media(max-width:768px){
+body{padding:0 0 30px 0;}
+.mobile-topbar{
+display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+background:rgba(255,255,255,.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:900;
+box-shadow:0 4px 20px rgba(15,23,42,.06);margin-bottom:18px;
 }
-
-.back:active{
-transform:scale(0.95);
+.hamburger-btn{
+width:42px;height:42px;border-radius:12px;border:1px solid #dbeafe;background:#fff;
+display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
-
-/* FIX SHINE */
-.back::before{
-content:'';
-position:absolute;
-top:0;
-left:-100%;
-width:100%;
-height:100%;
-background:linear-gradient(120deg,transparent,rgba(255,255,255,0.6),transparent);
-transition:0.6s;
-}
-
-.back:hover::before{
-left:100%;
+.hamburger-btn svg{width:22px;height:22px;stroke:#1e3a8a;stroke-width:2.4;}
+.mobile-topbar-logo{height:34px;width:auto;}
+.container{padding:0 16px;}
+.header img{width:56px;height:56px;}
+.title{font-size:22px;}
+.subtitle{font-size:12px;}
+.search-row{flex-direction:column;gap:10px;margin:16px 0 22px;}
+.search,.filter{width:100%;font-size:13px;}
+.card{padding:14px;flex-direction:column;align-items:flex-start;}
+.card-left{width:100%;gap:0;}
+.card-left > div:last-child{width:100%;}
+.card-title{font-size:15px;}
+.card-info{font-size:12px;}
+.badge{align-self:flex-end;padding:6px 14px;font-size:11px;}
+.back{width:100%;}
 }
 </style>
 </head>
 
 <body>
+
+<!-- TOPBAR & DRAWER MOBILE -->
+<div class="mobile-topbar">
+    <button class="hamburger-btn" onclick="toggleDrawer()" aria-label="Buka Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+    </button>
+    <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="mobile-topbar-logo">
+</div>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeDrawer()"></div>
+<div id="mobileDrawer" class="mobile-drawer">
+    <div class="drawer-header">
+        <img src="{{ asset('logo/logo.png') }}" alt="Logo">
+        <button class="close-drawer-btn" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-menu">
+        <a href="/"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Dashboard</a>
+        <a href="/tambah"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Tambah Agenda</a>
+        <a href="{{ route('kegiatan.kalender') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender</a>
+        <a href="{{ route('kegiatan.akan') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Akan Datang</a>
+        <a href="{{ route('kegiatan.selesai') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L16 9"/></svg>Selesai</a>
+    </div>
+</div>
 
 <div class="container">
 
@@ -382,39 +331,30 @@ left:100%;
 </select>
 </div>
 
-@foreach($data as $bulan => $items)
+@foreach($data as $bulan =>$items)
 <div class="month-title">{{ $bulan }}</div>
 
-@foreach($items as $item)
-
+@foreach($items as$item)
 @php
-$diff = (int) now()->diffInDays($item->tanggal, false);
-
-$class = 'long';
-if($diff <= 3 && $diff >= 0) $class = 'soon';
-elseif($diff <= 14 && $diff > 3) $class = 'near';
+$diff = (int) now()->diffInDays($item->tanggal, false);$class = 'long';
+if($diff <= 3 && $diff >= 0)$class = 'soon';
+elseif($diff <= 14 && $diff > 3)$class = 'near';
 @endphp
 
-<div class="card" 
-     data-bulan="{{ \Carbon\Carbon::parse($item->tanggal)->format('m') }}">
+<div class="card" data-bulan="{{ \Carbon\Carbon::parse($item->tanggal)->format('m') }}">
 <div class="card-left">
-<div class="icon"></div>
-
 <div>
 <div class="card-title">{{ $item->nama_kegiatan }}</div>
 <div class="card-info">
-{{ $item->tanggal }} • {{ $item->waktu }} • {{ $item->lokasi }}
+{{ $item->tanggal }} • {{ $item->waktu }} • {{$item->lokasi }}
 </div>
-
-<div class="countdown" data-date="{{ \Carbon\Carbon::parse($item->tanggal . ' ' . $item->waktu)->format('Y-m-d\TH:i:s') }}"></div>
+<div class="countdown" data-date="{{ \Carbon\Carbon::parse($item->tanggal . ' ' .$item->waktu)->format('Y-m-d\TH:i:s') }}"></div>
 <div class="progress">
 <div class="progress-bar" data-date="{{ \Carbon\Carbon::parse($item->tanggal)->format('Y-m-d') }}"></div>
 </div>
-
 </div>
 </div>
 
-<div>
 <div class="badge {{ $class }}">
 @if($diff >= 0)
 H-{{ $diff }}
@@ -423,46 +363,41 @@ H+{{ abs($diff) }}
 @endif
 </div>
 </div>
-
-</div>
-
 @endforeach
 @endforeach
 
 <div id="noData" style="
-display:none;
-text-align:center;
-margin-top:40px;
-padding:20px;
-border-radius:16px;
-background:rgba(255,255,255,0.6);
-backdrop-filter:blur(10px);
-box-shadow:0 10px 25px rgba(0,0,0,0.05);
-font-weight:600;
-color:#64748b;
-">Tidak ada agenda di bulan ini
-</div>
+display:none;text-align:center;margin-top:40px;padding:20px;border-radius:16px;
+background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);
+box-shadow:0 10px 25px rgba(0,0,0,0.05);font-weight:600;color:#64748b;
+">Tidak ada agenda di bulan ini</div>
 
 <a href="/" class="back">← Kembali ke Dashboard</a>
 
 </div>
 
 <script>
+function toggleDrawer(){
+    document.getElementById('mobileDrawer').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeDrawer(){
+    document.getElementById('mobileDrawer').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
 function updateCountdown(){
 document.querySelectorAll('.countdown').forEach(el=>{
 let target = new Date(el.dataset.date).getTime();
 let now = new Date().getTime();
 let diff = target - now;
-
 if(diff <= 0){
 el.innerText = "Sedang berlangsung / selesai";
 return;
 }
-
 let d = Math.floor(diff/(1000*60*60*24));
 let h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
 let m = Math.floor((diff%(1000*60*60))/(1000*60));
-
 el.innerText = `${d} hari ${h} jam ${m} menit`;
 });
 }
@@ -473,12 +408,9 @@ let target = new Date(el.dataset.date).getTime();
 let now = new Date().getTime();
 let total = 1000*60*60*24*30;
 let diff = target - now;
-
 let percent = 100 - (diff / total * 100);
-
 if(percent < 0) percent = 100;
 if(percent > 100) percent = 100;
-
 el.style.width = percent + "%";
 });
 }
@@ -486,9 +418,7 @@ el.style.width = percent + "%";
 setInterval(updateCountdown,1000);
 updateCountdown();
 updateProgress();
-</script>
 
-<script>
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
     const filterBulan = document.getElementById("filterBulan");
@@ -502,20 +432,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".card").forEach(card => {
             const text = card.innerText.toLowerCase();
             const cardBulan = (card.dataset.bulan || "").padStart(2, "0");
-
-            const cocokSearch = text.includes(keyword);
-            const cocokBulan = (bulan === "all" || bulan === cardBulan);
-
-            const tampil = cocokSearch && cocokBulan;
+            const tampil = text.includes(keyword) && (bulan === "all" || bulan === cardBulan);
             card.style.display = tampil ? "flex" : "none";
-
             if (tampil) visibleCount++;
         });
 
         document.querySelectorAll(".month-title").forEach(title => {
             let show = false;
             let next = title.nextElementSibling;
-
             while (next && !next.classList.contains("month-title")) {
                 if (next.classList.contains("card") && next.style.display !== "none") {
                     show = true;
@@ -523,7 +447,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 next = next.nextElementSibling;
             }
-
             title.style.display = show ? "block" : "none";
         });
 
@@ -534,7 +457,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     searchInput.addEventListener("input", filterData);
     filterBulan.addEventListener("change", filterData);
-
     filterData();
 });
 </script>
