@@ -113,40 +113,24 @@ position:relative;
 font-size:30px;
 font-weight:800;
 margin-bottom:6px;
-
 display:flex;
 align-items:center;
 gap:10px;
-
 letter-spacing:0.5px;
-
-/* gradient */
-background:linear-gradient(135deg,#1d4ed8,#3b82f6,#60a5fa);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
 }
 
-/* glow layer */
-.title::after{
-content:attr(data-text);
-position:absolute;
-left:0;
-top:0;
-z-index:-1;
-
+.title span{
 background:linear-gradient(135deg,#1d4ed8,#3b82f6,#60a5fa);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
-
-filter:blur(8px);
-opacity:0.5;
+filter:drop-shadow(0 4px 10px rgba(59,130,246,0.35));
 }
 
 /* ICON */
 .title i{
 color:#2563eb;
-font-size:22px;
-filter:drop-shadow(0 4px 12px rgba(59,130,246,0.6));
+font-size:24px;
+filter:drop-shadow(0 4px 12px rgba(59,130,246,0.5));
 }
 
 /* hover */
@@ -288,11 +272,11 @@ display:none;
 <div class="right">
 
 <!-- 🔥 PERUBAHAN DI SINI -->
-<div class="title" data-text="SELAMAT DATANG!">
-<i class="fa-solid fa-hand-wave"></i>
-SELAMAT DATANG!
+<div class="title">
+    <i class="fa-solid fa-hand"></i>
+    <span>SELAMAT DATANG!</span>
 </div>
-
+    
 <div class="subtitle">Silakan login untuk melanjutkan ke sistem</div>
 
 @if(session('error'))
