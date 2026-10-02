@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Kegiatan</title>
 
@@ -29,6 +29,31 @@ color:#1e293b;
 overflow-x:hidden;
 }
 
+/* MOBILE TOPBAR & HAMBURGER (Sembunyi di Desktop) */
+.mobile-topbar{
+display:none;
+}
+
+.sidebar-overlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(15,23,42,.45);
+backdrop-filter:blur(4px);
+z-index:998;
+opacity:0;
+transition:opacity .3s ease;
+}
+
+.sidebar-overlay.active{
+display:block;
+opacity:1;
+}
+
+.close-sidebar-btn{
+display:none;
+}
+
 /* SIDEBAR */
 .sidebar{
 width:250px;
@@ -36,12 +61,16 @@ padding:25px;
 background:rgba(255,255,255,.55);
 backdrop-filter:blur(24px);
 flex-shrink:0;
+transition:transform .3s cubic-bezier(.4,0,.2,1);
+z-index:999;
 }
 
 .logo{
 display:flex;
 justify-content:center;
+align-items:center;
 margin-bottom:35px;
+position:relative;
 }
 
 .logo img{
@@ -98,7 +127,6 @@ padding:28px;
 min-width:0;
 }
 
-/* HEADER */
 /* HEADER FINAL */
 .header-wrap{
 display:grid;
@@ -137,19 +165,6 @@ gap:14px;
 flex-wrap:nowrap;
 }
 
-/* RESPONSIVE */
-@media(max-width:1050px){
-.header-wrap{
-grid-template-columns:1fr;
-}
-
-.header-right{
-justify-content:flex-start;
-flex-wrap:wrap;
-}
-}
-
-/* SEARCH */
 /* SEARCH PREMIUM */
 .search-wrap{
 position:relative;
@@ -160,28 +175,19 @@ align-items:center;
 .search{
 width:260px;
 height:48px;
-padding:0 18px 0 46px;
+padding:0 18px 0 45px;
 border:none;
 outline:none;
 border-radius:999px;
-
 background:rgba(255,255,255,.88);
 backdrop-filter:blur(14px);
-
 font-size:14px;
 font-weight:500;
 color:#1e293b;
-
 box-shadow:
 0 10px 22px rgba(59,130,246,.10),
 inset 0 1px 0 rgba(255,255,255,.9);
-
 transition:.28s ease;
-}
-
-/* ICON 🔍 */
-.search{
-padding-left:45px;
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
 background-repeat:no-repeat;
 background-position:14px center;
@@ -200,15 +206,8 @@ box-shadow:
 0 0 0 4px rgba(59,130,246,.08);
 }
 
-/* icon search */
 .search-icon{
-position:absolute;
-left:16px;
-width:18px;
-height:18px;
-stroke:#3b82f6;
-stroke-width:2.2;
-pointer-events:none;
+display:none;
 }
 
 /* NOTIF */
@@ -225,21 +224,15 @@ text-decoration:none;
 cursor:pointer;
 border:none;
 outline:none;
-
 background:linear-gradient(145deg,#ffffff,#eef4ff);
 backdrop-filter:blur(14px);
-
 box-shadow:
 0 10px 22px rgba(59,130,246,.14),
 inset 0 1px 0 rgba(255,255,255,.9);
-
 transition:all .28s ease;
-
-/* penting */
 overflow:visible;
 }
 
-/* icon di tengah */
 .notif-btn svg,
 .notif-btn i{
 width:22px;
@@ -251,7 +244,6 @@ z-index:2;
 position:relative;
 }
 
-/* hover */
 .notif-btn:hover{
 transform:translateY(-3px) scale(1.06);
 box-shadow:
@@ -259,41 +251,31 @@ box-shadow:
 0 0 0 6px rgba(59,130,246,.08);
 }
 
-/* klik */
 .notif-btn:active{
 transform:scale(.96);
 }
 
-/* badge merah di LUAR lingkaran */
 .notif-badge{
 position:absolute;
 top:-5px;
 right:-5px;
-
 width:22px;
 height:22px;
 border-radius:50%;
-
 background:#ef4444;
 color:#fff;
-
 font-size:10px;
 font-weight:800;
 line-height:1;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 border:2px solid #ffffff;
 box-shadow:0 4px 10px rgba(239,68,68,.28);
-
 z-index:20;
-
 animation:notifPulse 1.5s infinite;
 }
 
-/* animasi kecil */
 @keyframes notifPulse{
 0%{transform:scale(1);}
 50%{transform:scale(1.1);}
@@ -329,6 +311,7 @@ height:42px;
 border-radius:50%;
 object-fit:cover;
 border:2px solid #60a5fa;
+flex-shrink:0;
 }
 
 .dropdown{
@@ -363,6 +346,14 @@ from{opacity:0;transform:translateY(-8px);}
 to{opacity:1;transform:translateY(0);}
 }
 
+/* STATS */
+.stats{
+display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));
+gap:18px;
+margin-bottom:25px;
+width:100%;
+}
 
 .stat-card{
 background:rgba(255,255,255,.35);
@@ -376,58 +367,8 @@ gap:18px;
 min-height:145px;
 transition:.3s ease;
 box-shadow:0 10px 20px rgba(0,0,0,.04);
-}
-
-/* TEXT AREA */
-.stat-text{
-display:flex;
-flex-direction:column;
-justify-content:center;
-height:100%;
-line-height:1.2;
-}
-
-.stat-text h4{
-font-size:14px;
-font-weight:700;
-color:#1e3a8a;
-margin:0 0 10px 0;
-min-height:18px;   /* semua judul sejajar */
-}
-
-.stat-text h2{
-font-size:48px;
-font-weight:800;
-color:#0f172a;
-margin:0 0 10px 0;
-line-height:1;
-min-height:48px;   /* angka rata */
-display:flex;
-align-items:center;
-}
-
-.stat-text p{
-font-size:13px;
-color:#64748b;
-font-weight:500;
-margin:0;
-min-height:34px;   /* subtitle sejajar */
-display:flex;
-align-items:flex-start;
-}
-
-.stat-card{
-background:rgba(255,255,255,.35);
-backdrop-filter:blur(12px);
-border:1px solid rgba(255,255,255,.35);
-border-radius:22px;
-padding:20px 22px;
-display:flex;
-align-items:center;
-gap:18px;
-min-height:140px;
-transition:.3s ease;
-box-shadow:0 10px 20px rgba(0,0,0,.04);
+overflow:hidden;
+position:relative;
 }
 
 .stat-card:hover{
@@ -454,24 +395,11 @@ height:28px;
 stroke:white;
 }
 
-/* warna */
-.blue{
-background:linear-gradient(135deg,#3b82f6,#60a5fa);
-}
+.blue{background:linear-gradient(135deg,#3b82f6,#60a5fa);}
+.green{background:linear-gradient(135deg,#22c55e,#34d399);}
+.purple{background:linear-gradient(135deg,#7c3aed,#8b5cf6);}
+.cyan{background:linear-gradient(135deg,#3b82f6,#60a5fa);}
 
-.green{
-background:linear-gradient(135deg,#22c55e,#34d399);
-}
-
-.purple{
-background:linear-gradient(135deg,#7c3aed,#8b5cf6);
-}
-
-.cyan{
-background:linear-gradient(135deg,#3b82f6,#60a5fa);
-}
-
-/* lingkaran luar partisipasi */
 .double-ring::before{
 content:'';
 position:absolute;
@@ -480,38 +408,6 @@ border-radius:50%;
 border:8px solid rgba(255,255,255,.35);
 }
 
-/* GANTI BAGIAN CSS STATS INI AGAR TIDAK TURUN KE BAWAH */
-
-.stats{
-display:grid;
-grid-template-columns:repeat(4,minmax(0,1fr));
-gap:18px;
-margin-bottom:25px;
-width:100%;
-}
-
-/* CARD */
-.stat-card{
-background:rgba(255,255,255,.35);
-backdrop-filter:blur(12px);
-border:1px solid rgba(255,255,255,.35);
-border-radius:22px;
-padding:20px 22px;
-display:flex;
-align-items:center;
-gap:18px;
-min-height:145px;
-transition:.3s ease;
-box-shadow:0 10px 20px rgba(0,0,0,.04);
-overflow:hidden;
-}
-
-.stat-card:hover{
-transform:translateY(-6px);
-box-shadow:0 18px 25px rgba(59,130,246,.12);
-}
-
-/* TEXT */
 .stat-text{
 display:flex;
 flex-direction:column;
@@ -550,19 +446,6 @@ display:flex;
 align-items:flex-start;
 }
 
-/* RESPONSIVE */
-@media(max-width:1200px){
-.stats{
-grid-template-columns:repeat(2,1fr);
-}
-}
-
-@media(max-width:700px){
-.stats{
-grid-template-columns:1fr;
-}
-}
-
 /* CONTENT */
 .content{
 display:grid;
@@ -576,6 +459,7 @@ background:rgba(255,255,255,.68);
 padding:20px;
 border-radius:22px;
 box-shadow:0 10px 20px rgba(0,0,0,.04);
+min-width:0;
 }
 
 /* LEGEND */
@@ -584,6 +468,7 @@ display:flex;
 gap:15px;
 font-size:13px;
 margin-bottom:15px;
+flex-wrap:wrap;
 }
 
 .legend span{
@@ -606,6 +491,7 @@ border-radius:50%;
 display:flex;
 justify-content:space-between;
 align-items:center;
+gap:12px;
 padding:14px;
 margin-bottom:12px;
 border-radius:14px;
@@ -628,32 +514,29 @@ border-left:4px solid #f59e0b;
 border-left:4px solid #22c55e;
 }
 
-/* ===== STATUS BADGE DASHBOARD ===== */
+/* STATUS BADGE DASHBOARD */
 .status-badge{
 display:inline-flex;
 align-items:center;
+justify-content:center;
 gap:6px;
-
 padding:8px 14px;
 border-radius:999px;
-
 font-size:12px;
 font-weight:700;
 color:white;
-
+white-space:nowrap;
+flex-shrink:0;
 position:relative;
 overflow:hidden;
-
 transition:0.3s;
 box-shadow:0 6px 15px rgba(0,0,0,0.15);
 }
 
-/* HOVER HIDUP */
 .status-badge:hover{
 transform:translateY(-2px) scale(1.05);
 }
 
-/* SHINE EFFECT */
 .status-badge::before{
 content:'';
 position:absolute;
@@ -669,7 +552,6 @@ transition:0.6s;
 left:100%;
 }
 
-/* ===== WARNA ===== */
 .status-akan{
 background:linear-gradient(135deg,#f59e0b,#fbbf24);
 box-shadow:0 8px 18px rgba(245,158,11,0.4);
@@ -714,10 +596,21 @@ opacity:0;
 }
 }
 
-/* RESPONSIVE */
+/* ================= RESPONSIVE BREAKPOINTS ================= */
 @media(max-width:1200px){
 .stats{
 grid-template-columns:repeat(2,1fr);
+}
+}
+
+@media(max-width:1050px){
+.header-wrap{
+grid-template-columns:1fr;
+gap:16px;
+}
+.header-right{
+justify-content:flex-start;
+flex-wrap:wrap;
 }
 }
 
@@ -727,17 +620,252 @@ grid-template-columns:1fr;
 }
 }
 
+/* MOBILE HAMBURGER & LAYOUT */
 @media(max-width:768px){
 body{
 flex-direction:column;
 }
 
+/* Topbar muncul di Mobile */
+.mobile-topbar{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:14px 18px;
+background:rgba(255,255,255,.82);
+backdrop-filter:blur(20px);
+position:sticky;
+top:0;
+z-index:900;
+box-shadow:0 4px 20px rgba(15,23,42,.06);
+border-bottom:1px solid rgba(255,255,255,.6);
+}
+
+.hamburger-btn{
+width:42px;
+height:42px;
+border-radius:12px;
+border:1px solid #dbeafe;
+background:#fff;
+color:#1e3a8a;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(59,130,246,.12);
+transition:.2s;
+}
+
+.hamburger-btn:active{
+transform:scale(.94);
+}
+
+.hamburger-btn svg{
+width:22px;
+height:22px;
+stroke:#1e3a8a;
+stroke-width:2.4;
+}
+
+.mobile-topbar-logo{
+height:34px;
+width:auto;
+object-fit:contain;
+}
+
+/* Sidebar jadi Slide Drawer di Mobile */
 .sidebar{
+position:fixed;
+top:0;
+left:0;
+bottom:0;
+width:270px;
+max-width:82vw;
+background:rgba(255,255,255,.95);
+backdrop-filter:blur(24px);
+box-shadow:20px 0 50px rgba(15,23,42,.18);
+transform:translateX(-105%);
+overflow-y:auto;
+padding:22px 20px;
+}
+
+.sidebar.open{
+transform:translateX(0);
+}
+
+.logo{
+justify-content:space-between;
+margin-bottom:25px;
+}
+
+.logo img{
+width:140px;
+}
+
+.close-sidebar-btn{
+display:flex;
+align-items:center;
+justify-content:center;
+width:36px;
+height:36px;
+border-radius:10px;
+border:none;
+background:#eff6ff;
+color:#1e3a8a;
+font-size:18px;
+font-weight:700;
+cursor:pointer;
+}
+
+/* Main Content Mobile */
+.main{
+padding:18px 16px 32px;
+}
+
+.header-wrap{
+gap:14px;
+margin-bottom:20px;
+}
+
+.header-left h2{
+font-size:20px;
+}
+
+.desc{
+font-size:13px;
+}
+
+/* Baris Search, Notif, & Profile rapi di Mobile */
+.header-right{
+display:grid;
+grid-template-columns:auto 1fr;
+gap:10px;
 width:100%;
 }
 
+.search-wrap{
+grid-column:1 / -1;
+order:2;
+width:100%;
+}
+
+.search,
+.search:focus{
+width:100%;
+height:44px;
+font-size:13px;
+}
+
+.notif-btn{
+order:1;
+width:46px;
+height:46px;
+min-width:46px;
+}
+
+.profile{
+order:1;
+justify-self:end;
+width:100%;
+}
+
+.profile-box{
+width:100%;
+justify-content:flex-start;
+padding:6px 12px;
+border-radius:14px;
+}
+
+.profile-box img{
+width:36px;
+height:36px;
+}
+
+.profile-box b{
+font-size:13px;
+}
+
+/* Stats 2 kolom kompak di layar HP */
 .stats{
-grid-template-columns:1fr;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:12px;
+margin-bottom:20px;
+}
+
+.stat-card{
+padding:14px;
+gap:12px;
+min-height:110px;
+border-radius:18px;
+flex-direction:column;
+align-items:flex-start;
+}
+
+.icon-circle{
+width:42px;
+height:42px;
+}
+
+.icon-circle svg{
+width:20px;
+height:20px;
+}
+
+.double-ring::before{
+inset:-6px;
+border-width:5px;
+}
+
+.stat-text h4{
+font-size:12px;
+margin-bottom:4px;
+min-height:auto;
+}
+
+.stat-text h2{
+font-size:28px;
+margin-bottom:4px;
+min-height:auto;
+}
+
+.stat-text p{
+font-size:11px;
+min-height:auto;
+}
+
+/* Glass & Row di Mobile */
+.glass{
+padding:16px;
+border-radius:18px;
+}
+
+.row{
+padding:12px;
+}
+
+.row strong{
+font-size:13px;
+display:block;
+margin-bottom:2px;
+}
+
+.row small{
+font-size:11px;
+color:#64748b;
+}
+
+.status-badge{
+padding:6px 11px;
+font-size:11px;
+}
+
+#calendar{
+min-height:340px;
+}
+
+.fc .fc-toolbar{
+flex-wrap:wrap;
+gap:8px;
 }
 }
 </style>
@@ -745,11 +873,27 @@ grid-template-columns:1fr;
 
 <body>
 
+<!-- TOPBAR MOBILE (Hanya muncul di HP) -->
+<div class="mobile-topbar">
+    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+    </button>
+    <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="mobile-topbar-logo">
+</div>
+
+<!-- OVERLAY GELAP SAAT SIDEBAR DIBUKA DI HP -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div id="sidebar" class="sidebar">
 
 <div class="logo">
 <img src="{{ asset('logo/logo.png') }}" alt="Logo">
+<button class="close-sidebar-btn" onclick="closeSidebar()" aria-label="Tutup Menu">✕</button>
 </div>
 
 <div class="menu">
@@ -805,7 +949,7 @@ Selesai
 <div class="header-wrap">
 
 <div class="header-left">
-<h2>Halo,{{ session('user.nama') }} 👋</h2>
+<h2>Halo, {{ session('user.nama') }} 👋</h2>
 <p class="desc">
 Kelola dan pantau kegiatan himpunan mahasiswa multimedia dengan mudah
 </p>
@@ -821,18 +965,14 @@ Kelola dan pantau kegiatan himpunan mahasiswa multimedia dengan mudah
 </a>
 
 <div class="search-wrap">
-
 <svg class="search-icon" viewBox="0 0 24 24" fill="none">
 <circle cx="11" cy="11" r="7"></circle>
 <path d="M20 20L17 17"></path>
 </svg>
-
 <input type="text" id="search" class="search" placeholder="Cari kegiatan...">
-
 </div>
 
 <div class="profile">
-
 <div class="profile-box" onclick="toggleProfile()">
 <img src="{{ asset('foto/'.session('user.foto')) }}">
 <div>
@@ -845,15 +985,12 @@ Kelola dan pantau kegiatan himpunan mahasiswa multimedia dengan mudah
 <a href="{{ route('profile.view') }}">View Profile</a>
 <a href="/logout">Logout</a>
 </div>
-
 </div>
 
 </div>
 </div>
 
 <!-- STATS -->
-<!-- GANTI BAGIAN HTML STATS LAMA DENGAN INI -->
-
 <div class="stats">
 
 <!-- TOTAL -->
@@ -953,7 +1090,7 @@ Kelola dan pantau kegiatan himpunan mahasiswa multimedia dengan mudah
 {{ $d->status == 'selesai' ? 'Selesai' : 'Akan Datang' }}
 </div>
 
-</div> {{-- INI YANG KURANG --}}
+</div>
 @endforeach
 
 </div>
@@ -968,74 +1105,77 @@ Kelola dan pantau kegiatan himpunan mahasiswa multimedia dengan mudah
 </div>
 
 <script>
+// HAMBURGER SIDEBAR MOBILE
+function toggleSidebar(){
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+function closeSidebar(){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
 
 // SEARCH REALTIME KEGIATAN
 document.getElementById('search').addEventListener('keyup', function(){
+    let keyword = this.value.toLowerCase();
+    let items = document.querySelectorAll('.row');
 
-let keyword = this.value.toLowerCase();
-let items = document.querySelectorAll('.row');
-
-items.forEach(function(item){
-
-let text = item.innerText.toLowerCase();
-
-if(text.includes(keyword)){
-item.style.display = 'flex';
-}else{
-item.style.display = 'none';
-}
-
-});
-
+    items.forEach(function(item){
+        let text = item.innerText.toLowerCase();
+        if(text.includes(keyword)){
+            item.style.display = 'flex';
+        }else{
+            item.style.display = 'none';
+        }
+    });
 });
 
 function toggleProfile(){
-let d=document.getElementById('dropdown');
-d.style.display=d.style.display==='block'?'none':'block';
+    let d=document.getElementById('dropdown');
+    d.style.display=d.style.display==='block'?'none':'block';
 }
 
 window.onclick=function(e){
-if(!e.target.closest('.profile')){
-document.getElementById('dropdown').style.display='none';
-}
+    if(!e.target.closest('.profile')){
+        document.getElementById('dropdown').style.display='none';
+    }
 };
 
 var calendar=new FullCalendar.Calendar(document.getElementById('calendar'),{
-initialView:'dayGridMonth',
-headerToolbar:{left:'prev,next today',center:'title',right:''},
-events:[
-@foreach($data as $d)
-{
-title:"{{ $d->nama_kegiatan }}",
-start:"{{ $d->tanggal }}",
-color:"{{ $d->status=='selesai' ? '#22c55e':'#3b82f6' }}"
-},
-@endforeach
-]
+    initialView:'dayGridMonth',
+    headerToolbar:{left:'prev,next today',center:'title',right:''},
+    events:[
+    @foreach($data as $d)
+    {
+        title:"{{ $d->nama_kegiatan }}",
+        start:"{{ $d->tanggal }}",
+        color:"{{ $d->status=='selesai' ? '#22c55e':'#3b82f6' }}"
+    },
+    @endforeach
+    ]
 });
 
 calendar.render();
 
 /* Ripple */
 document.querySelectorAll('.menu a,.notif-btn,.profile-box,.stat-card,.row').forEach(el=>{
-el.addEventListener('click',function(e){
+    el.addEventListener('click',function(e){
+        let ripple=document.createElement('span');
+        ripple.classList.add('ripple');
 
-let ripple=document.createElement('span');
-ripple.classList.add('ripple');
+        let rect=this.getBoundingClientRect();
+        let size=Math.max(rect.width,rect.height);
 
-let rect=this.getBoundingClientRect();
-let size=Math.max(rect.width,rect.height);
+        ripple.style.width=size+'px';
+        ripple.style.height=size+'px';
+        ripple.style.left=(e.clientX-rect.left-size/2)+'px';
+        ripple.style.top=(e.clientY-rect.top-size/2)+'px';
 
-ripple.style.width=size+'px';
-ripple.style.height=size+'px';
-ripple.style.left=(e.clientX-rect.left-size/2)+'px';
-ripple.style.top=(e.clientY-rect.top-size/2)+'px';
+        this.appendChild(ripple);
 
-this.appendChild(ripple);
-
-setTimeout(()=>ripple.remove(),600);
-
-});
+        setTimeout(()=>ripple.remove(),600);
+    });
 });
 </script>
 
