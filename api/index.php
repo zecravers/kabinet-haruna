@@ -18,6 +18,11 @@ foreach ([
     }
 }
 
+// Bersihkan file view yang sempat gagal ter-compile sebelumnya
+foreach (glob($storagePath . '/framework/views/*.php') ?: [] as $compiledFile) {
+    @unlink($compiledFile);
+}
+
 // 2. Siapkan file SQLite cadangan di /tmp
 $sqlitePath = '/tmp/database.sqlite';
 if (!file_exists($sqlitePath)) {
@@ -78,15 +83,13 @@ $sslModeWithEndpoint = 'require';
 
 if (!empty($pgHost)) {
     $hostParts = explode('.', $pgHost);
-    $endpointId = $hostParts[0]; // ep-lingering-frog-b8m4icez-pooler
+    $endpointId = $hostParts[0];
 
-    // Hapus DATABASE_URL & DB_URL agar Laravel tidak menimpa sslmode kita
     unset($_ENV['DATABASE_URL'], $_SERVER['DATABASE_URL'], $_ENV['DB_URL'], $_SERVER['DB_URL'], $_ENV['POSTGRES_URL'], $_SERVER['POSTGRES_URL']);
     putenv('DATABASE_URL');
     putenv('DB_URL');
     putenv('POSTGRES_URL');
 
-    // Di PostgresConnector Laravel, sslmode ditempel langsung tanpa tanda kutip: ;sslmode={$sslmode}
     $sslModeWithEndpoint = "require;options='--endpoint={$endpointId}'";
     $testDsn = "pgsql:host='{$pgHost}';dbname='{$pgDb}';port=5432;sslmode={$sslModeWithEndpoint}";
 
@@ -121,8 +124,22 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->useStoragePath($storagePath);
 
-// 6. Jalankan pembuatan tabel, isi 49 data awal, & AUTO-UPDATE status sesuai tanggal sekarang (WIB)
+// 6. Jalankan perbaikan otomatis @foreach, pembuatan tabel, & AUTO-UPDATE status tanggal (WIB)
 $app->booted(function ($app) use ($forcedEnv, $sslModeWithEndpoint) {
+    // AUTO-FIXER BLADE: Perbaiki spasi @foreach / @forelse / @for yang terhapus saat copy-paste
+    try {
+        $blade = $app->make('blade.compiler');
+        $blade->precompiler(function ($string) {
+            // Pisahkan "as$" menjadi "as $" (contoh: @foreach($data as$d) -> @foreach($data as $d))
+            $string = preg_replace('/(@(?:foreach|forelse)\s*\([^)]*?)\bas\$/', '$1as $', $string);
+            // Pisahkan "$varas" menjadi "$var as"
+            $string = preg_replace('/(@(?:foreach|forelse)\s*\(\s*\$[a-zA-Z0-9_>-]+)as\b/', '$1 as ', $string);
+            return $string;
+        });
+    } catch (\Throwable $e) {
+        // Abaikan jika precompiler gagal
+    }
+
     if ($forcedEnv['DB_CONNECTION'] === 'pgsql') {
         $app['config']->set('database.default', 'pgsql');
         $app['config']->set('database.connections.pgsql.url', null);
