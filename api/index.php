@@ -9,17 +9,21 @@ foreach ([
     '/logs',
     '/bootstrap/cache',
 ] as $dir) {
-    if (!is_dir($storagePath .$dir)) {
-        mkdir($storagePath .$dir, 0777, true);
+    $fullDir = $storagePath . $dir;
+    if (!is_dir($fullDir)) {
+        mkdir($fullDir, 0777, true);
     }
 }
 
 // 2. Cek apakah sudah ada koneksi Postgres (Neon Vercel Storage) yang permanen
-$pgHost = getenv('POSTGRES_HOST') ?: ($_ENV['POSTGRES_HOST'] ?? null);
+$pgHost = getenv('POSTGRES_HOST');
+if (empty($pgHost) && isset($_ENV['POSTGRES_HOST'])) {
+    $pgHost = $_ENV['POSTGRES_HOST'];
+}
 
 // 3. Bersihkan variabel kosong sisa .env.example di Vercel
-foreach ($_ENV as $k =>$v) {
-    if ($v === '' \vert{}\vert{}$v === 'null') {
+foreach ($_ENV as $k => $v) {
+    if (in_array($v, ['', 'null'], true)) {
         unset($_ENV[$k], $_SERVER[$k]);
         putenv($k);
     }
@@ -47,11 +51,28 @@ $forcedEnv = [
     'APP_EVENTS_CACHE'       => $storagePath . '/bootstrap/cache/events.php',
 ];
 
-if ($pgHost) {
+if (!empty($pgHost)) {
     // Gunakan Database Permanen Neon Postgres dari Vercel Storage
+    $pgDb = getenv('POSTGRES_DATABASE');
+    if (empty($pgDb)) {
+        $pgDb = isset($_ENV['POSTGRES_DATABASE']) ? $_ENV['POSTGRES_DATABASE'] : 'neondb';
+    }
+    $pgUser = getenv('POSTGRES_USER');
+    if (empty($pgUser)) {
+        $pgUser = isset($_ENV['POSTGRES_USER']) ? $_ENV['POSTGRES_USER'] : '';
+    }
+    $pgPass = getenv('POSTGRES_PASSWORD');
+    if (empty($pgPass)) {
+        $pgPass = isset($_ENV['POSTGRES_PASSWORD']) ? $_ENV['POSTGRES_PASSWORD'] : '';
+    }
+
     $forcedEnv['DB_CONNECTION'] = 'pgsql';
-    $forcedEnv['DB_HOST']       =$pgHost;
-    $forcedEnv['DB_PORT']       = '5432';$forcedEnv['DB_DATABASE']   = getenv('POSTGRES_DATABASE') ?: ($_ENV['POSTGRES_DATABASE'] ?? 'neondb');$forcedEnv['DB_USERNAME']   = getenv('POSTGRES_USER') ?: ($_ENV['POSTGRES_USER'] ?? '');$forcedEnv['DB_PASSWORD']   = getenv('POSTGRES_PASSWORD') ?: ($_ENV['POSTGRES_PASSWORD'] ?? '');$forcedEnv['DB_SSLMODE']    = 'require';
+    $forcedEnv['DB_HOST']       = $pgHost;
+    $forcedEnv['DB_PORT']       = '5432';
+    $forcedEnv['DB_DATABASE']   = $pgDb;
+    $forcedEnv['DB_USERNAME']   = $pgUser;
+    $forcedEnv['DB_PASSWORD']   = $pgPass;
+    $forcedEnv['DB_SSLMODE']    = 'require';
 } else {
     // Fallback ke SQLite di /tmp jika belum connect ke Vercel Storage
     $sqlitePath = '/tmp/database.sqlite';
@@ -59,12 +80,13 @@ if ($pgHost) {
         touch($sqlitePath);
     }
     $forcedEnv['DB_CONNECTION'] = 'sqlite';
-    $forcedEnv['DB_DATABASE']   =$sqlitePath;
+    $forcedEnv['DB_DATABASE']   = $sqlitePath;
 }
 
-foreach ($forcedEnv as$key => $val) {$_ENV[$key] =$val;
-    $_SERVER[$key] =$val;
-    putenv("$key=$val");
+foreach ($forcedEnv as $key => $val) {
+    $_ENV[$key] = $val;
+    $_SERVER[$key] = $val;
+    putenv($key . '=' . $val);
 }
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -74,17 +96,21 @@ $app->useStoragePath($storagePath);
 
 $request = Illuminate\Http\Request::capture();
 
-// 4. Otomatis buat tabel `kegiatans` & isi 49 data awal dari db_organisasi.sql jika tabel belum ada
+// 4. Otomatis buat tabel kegiatans & isi 49 data awal dari db_organisasi.sql jika tabel belum ada
 try {
-    $db =$app->make('db')->connection();
-    $schema =$db->getSchemaBuilder();
+    $db = $app->make('db')->connection();
+    $schema = $db->getSchemaBuilder();
 
     if (!$schema->hasTable('kegiatans')) {
         $schema->create('kegiatans', function ($table) {
-            $table->id();$table->string('nama_kegiatan', 255);
-            $table->text('deskripsi')->nullable();$table->date('tanggal');
-            $table->time('waktu');$table->string('lokasi', 255);
-            $table->string('status', 100);$table->timestamps();
+            $table->id();
+            $table->string('nama_kegiatan', 255);
+            $table->text('deskripsi')->nullable();
+            $table->date('tanggal');
+            $table->time('waktu');
+            $table->string('lokasi', 255);
+            $table->string('status', 100);
+            $table->timestamps();
         });
 
         $initialData = [
