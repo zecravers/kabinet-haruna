@@ -66,12 +66,24 @@ if (!empty($pgHost)) {
         $pgPass = isset($_ENV['POSTGRES_PASSWORD']) ? $_ENV['POSTGRES_PASSWORD'] : '';
     }
 
+    // Ambil Endpoint ID (bagian pertama sebelum titik dari host Neon) untuk SNI workaround libpq lama
+    $hostParts = explode('.', $pgHost);
+    $endpointId = $hostParts[0];
+
+    // Gunakan format workaround resmi Neon untuk libpq tanpa SNI: "endpoint=<id>;<password>"
+    $neonPassWithEndpoint = 'endpoint=' . $endpointId . ';' . $pgPass;
+
+    // Bersihkan DATABASE_URL / DB_URL bawaan agar memakai konfigurasi di bawah
+    unset($_ENV['DATABASE_URL'], $_SERVER['DATABASE_URL'], $_ENV['DB_URL'], $_SERVER['DB_URL']);
+    putenv('DATABASE_URL');
+    putenv('DB_URL');
+
     $forcedEnv['DB_CONNECTION'] = 'pgsql';
     $forcedEnv['DB_HOST']       = $pgHost;
     $forcedEnv['DB_PORT']       = '5432';
     $forcedEnv['DB_DATABASE']   = $pgDb;
     $forcedEnv['DB_USERNAME']   = $pgUser;
-    $forcedEnv['DB_PASSWORD']   = $pgPass;
+    $forcedEnv['DB_PASSWORD']   = $neonPassWithEndpoint;
     $forcedEnv['DB_SSLMODE']    = 'require';
 } else {
     // Fallback ke SQLite di /tmp jika belum connect ke Vercel Storage
