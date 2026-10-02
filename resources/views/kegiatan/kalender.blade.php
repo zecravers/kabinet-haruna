@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KALENDER KEGIATAN</title>
 
@@ -20,24 +20,51 @@ body{
 background:linear-gradient(135deg,#e0f2fe,#f8fafc);
 min-height:100vh;
 padding:30px;
+overflow-x:hidden;
 }
+
+/* MOBILE TOPBAR & HAMBURGER DRAWER */
+.mobile-topbar{display:none;}
+.sidebar-overlay{
+display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);
+backdrop-filter:blur(4px);z-index:998;
+}
+.sidebar-overlay.active{display:block;}
+.mobile-drawer{
+position:fixed;top:0;left:0;bottom:0;width:270px;max-width:82vw;
+background:rgba(255,255,255,.96);backdrop-filter:blur(24px);
+box-shadow:20px 0 50px rgba(15,23,42,.18);transform:translateX(-105%);
+transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:999;padding:22px 20px;overflow-y:auto;
+}
+.mobile-drawer.open{transform:translateX(0);}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.drawer-header img{width:140px;}
+.close-drawer-btn{
+width:36px;height:36px;border-radius:10px;border:none;background:#eff6ff;
+color:#1e3a8a;font-size:18px;font-weight:700;cursor:pointer;
+}
+.drawer-menu a{
+display:flex;align-items:center;gap:12px;padding:13px 14px;margin:8px 0;
+border-radius:14px;text-decoration:none;color:#1e3a8a;background:rgba(239,246,255,.7);
+font-weight:600;transition:.25s;
+}
+.drawer-menu a:hover{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;}
+.side-icon{width:18px;height:18px;stroke:currentColor;stroke-width:2.2;flex-shrink:0;}
 
 .container{
 max-width:1100px;
 margin:auto;
 }
 
-/* HEADER */
 .topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
 gap:20px;
 margin-bottom:25px;
-flex-wrap:wrap; /* FIX */
+flex-wrap:wrap;
 }
 
-/* LOGO + TITLE */
 .header-left{
 display:flex;
 align-items:center;
@@ -49,12 +76,6 @@ width:80px;
 height:80px;
 object-fit:contain;
 filter:drop-shadow(0 6px 12px rgba(37,99,235,0.3));
-transition:0.3s;
-}
-
-.logo-img:hover{
-transform:scale(1.08);
-filter:drop-shadow(0 10px 18px rgba(37,99,235,0.5));
 }
 
 .title{
@@ -76,31 +97,27 @@ display:flex;
 align-items:center;
 gap:10px;
 flex-wrap:wrap;
-white-space:nowrap;
 }
 
 .month-name{
 font-weight:800;
 color:#1e293b;
-min-width:170px;
+min-width:150px;
 text-align:center;
 font-size:16px;
 }
 
-/* BUTTON */
 .btn,
 .small-btn{
 position:relative;
 overflow:hidden;
 text-decoration:none;
 cursor:pointer;
-user-select:none;
 display:inline-flex;
 align-items:center;
 justify-content:center;
 white-space:nowrap;
 transition:all .28s ease;
-flex-shrink:0;
 }
 
 .btn{
@@ -119,39 +136,10 @@ border-radius:12px;
 background:#fff;
 color:#2563eb;
 font-weight:700;
+font-size:13px;
 box-shadow:0 0 0 1px #dbeafe;
 }
 
-.btn:hover,
-.small-btn:hover{
-transform:translateY(-2px) scale(1.02);
-box-shadow:0 14px 24px rgba(0,0,0,.08);
-}
-
-.btn:active,
-.small-btn:active{
-transform:scale(.96);
-}
-
-/* RIPPLE */
-.ripple{
-position:absolute;
-border-radius:50%;
-transform:scale(0);
-background:rgba(255,255,255,.45);
-animation:rippleSmooth .7s ease-out;
-pointer-events:none;
-filter:blur(1px);
-}
-
-@keyframes rippleSmooth{
-to{
-transform:scale(4.5);
-opacity:0;
-}
-}
-
-/* CARD */
 .card{
 background:rgba(255,255,255,.75);
 backdrop-filter:blur(18px);
@@ -160,7 +148,6 @@ padding:25px;
 box-shadow:0 15px 35px rgba(0,0,0,.08);
 }
 
-/* CALENDAR */
 .calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
@@ -196,13 +183,10 @@ margin-bottom:8px;
 }
 
 .today{
-box-shadow:0 0 0 2px rgba(59,130,246,.35);
+box-shadow:0 0 0 2px rgba(59,130,246,.5);
 }
 
-.clickable{
-cursor:pointer;
-}
-
+.clickable{cursor:pointer;}
 .clickable:hover{
 transform:translateY(-4px);
 box-shadow:0 15px 20px rgba(0,0,0,.08);
@@ -233,21 +217,16 @@ background:rgba(0,0,0,.45);
 display:none;
 justify-content:center;
 align-items:center;
-z-index:999;
+z-index:1000;
+padding:16px;
 }
 
 .modal-box{
-width:95%;
+width:100%;
 max-width:520px;
 background:#fff;
 border-radius:22px;
 padding:25px;
-animation:pop .25s ease;
-}
-
-@keyframes pop{
-from{transform:scale(.8);opacity:0;}
-to{transform:scale(1);opacity:1;}
 }
 
 .modal-header{
@@ -258,7 +237,7 @@ margin-bottom:20px;
 }
 
 .modal-header h2{
-font-size:20px;
+font-size:18px;
 color:#1e293b;
 }
 
@@ -291,45 +270,81 @@ color:#64748b;
 margin-top:4px;
 }
 
-/* RESPONSIVE */
 @media(max-width:900px){
-.topbar{
-flex-direction:column;
-align-items:flex-start;
+.calendar{grid-template-columns:repeat(2,1fr);}
+.day-name,.empty{display:none;}
 }
 
+@media(max-width:768px){
+body{padding:0 0 30px 0;}
+.mobile-topbar{
+display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+background:rgba(255,255,255,.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:900;
+box-shadow:0 4px 20px rgba(15,23,42,.06);margin-bottom:18px;
+}
+.hamburger-btn{
+width:42px;height:42px;border-radius:12px;border:1px solid #dbeafe;background:#fff;
+display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.hamburger-btn svg{width:22px;height:22px;stroke:#1e3a8a;stroke-width:2.4;}
+.mobile-topbar-logo{height:34px;width:auto;}
+.container{padding:0 16px;}
+.logo-img{width:56px;height:56px;}
+.title{font-size:21px;}
+.subtitle{font-size:12px;}
 .nav-month{
+display:grid;
+grid-template-columns:1fr 1fr;
 width:100%;
-overflow-x:auto;
-padding-bottom:5px;
+gap:8px;
 }
-
-.calendar{
-grid-template-columns:repeat(2,1fr);
+.month-name{
+grid-column:1 / -1;
+order:-1;
+background:#fff;
+padding:10px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.04);
 }
-
-.day-name{
-display:none;
-}
-}
-
-@media(max-width:600px){
-.calendar{
-grid-template-columns:1fr;
-}
+.nav-month .btn{grid-column:1 / -1;}
+.card{padding:16px;border-radius:18px;}
+.calendar{grid-template-columns:repeat(2,1fr);gap:10px;}
+.box{min-height:95px;padding:10px;}
 }
 </style>
 </head>
 
 <body>
 
+<!-- TOPBAR & DRAWER MOBILE -->
+<div class="mobile-topbar">
+    <button class="hamburger-btn" onclick="toggleDrawer()" aria-label="Buka Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+    </button>
+    <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="mobile-topbar-logo">
+</div>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeDrawer()"></div>
+<div id="mobileDrawer" class="mobile-drawer">
+    <div class="drawer-header">
+        <img src="{{ asset('logo/logo.png') }}" alt="Logo">
+        <button class="close-drawer-btn" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-menu">
+        <a href="/"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>Dashboard</a>
+        <a href="/tambah"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Tambah Agenda</a>
+        <a href="{{ route('kegiatan.kalender') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender</a>
+        <a href="{{ route('kegiatan.akan') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Akan Datang</a>
+        <a href="{{ route('kegiatan.selesai') }}"><svg class="side-icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.2 2.2L16 9"/></svg>Selesai</a>
+    </div>
+</div>
+
 <div class="container">
 
 <div class="topbar">
-
 <div class="header-left">
 <img src="{{ asset('logo/logo1.png') }}" class="logo-img">
-
 <div>
 <div class="title">KALENDER KEGIATAN</div>
 <div class="subtitle">Semua kegiatan organisasi berdasarkan tanggal</div>
@@ -337,19 +352,14 @@ grid-template-columns:1fr;
 </div>
 
 <div class="nav-month">
-<a href="{{ url('/kalender?bulan='.$prevMonth.'&tahun='.$prevYear) }}" class="small-btn">← Bulan Sebelumnya</a>
-
-<div class="month-name">{{ $namaBulan }} {{ $tahun }}</div>
-
-<a href="{{ url('/kalender?bulan='.$nextMonth.'&tahun='.$nextYear) }}" class="small-btn">Bulan Berikutnya →</a>
-
+<a href="{{ url('/kalender?bulan='.$prevMonth.'&tahun='.$prevYear) }}" class="small-btn">← Sebelumnya</a>
+<div class="month-name">{{ $namaBulan }} {{$tahun }}</div>
+<a href="{{ url('/kalender?bulan='.$nextMonth.'&tahun='.$nextYear) }}" class="small-btn">Berikutnya →</a>
 <a href="/" class="btn">Kembali Dashboard</a>
 </div>
-
 </div>
 
 <div class="card">
-
 <div class="calendar">
 
 <div class="day-name">Sen</div>
@@ -365,11 +375,9 @@ grid-template-columns:1fr;
 @endfor
 
 @for($tgl=1; $tgl <= $jumlahHari; $tgl++)
-
 @php
-$fullDate = $tahun.'-'.str_pad($bulan,2,'0',STR_PAD_LEFT).'-'.str_pad($tgl,2,'0',STR_PAD_LEFT);
-$list = $events[$fullDate] ?? [];
-$isToday = $fullDate == date('Y-m-d');
+$fullDate = $tahun.'-'.str_pad($bulan,2,'0',STR_PAD_LEFT).'-'.str_pad($tgl,2,'0',STR_PAD_LEFT);$list = $events[$fullDate] ?? [];
+$isToday =$fullDate == date('Y-m-d');
 @endphp
 
 <div class="box {{ $isToday ? 'today' : '' }} {{ count($list) ? 'clickable' : '' }}"
@@ -377,7 +385,7 @@ $isToday = $fullDate == date('Y-m-d');
 
 <div class="number">{{ $tgl }}</div>
 
-@foreach($list as $item)
+@foreach($list as$item)
 <div class="event">
 {{ $item->nama_kegiatan }}
 <span class="time">{{ $item->waktu }}</span>
@@ -385,7 +393,6 @@ $isToday = $fullDate == date('Y-m-d');
 @endforeach
 
 </div>
-
 @endfor
 
 </div>
@@ -396,45 +403,28 @@ $isToday = $fullDate == date('Y-m-d');
 <!-- MODAL -->
 <div class="modal" id="eventModal">
 <div class="modal-box">
-
 <div class="modal-header">
 <h2>Agenda Tanggal <span id="modalDate"></span></h2>
 <button onclick="closeModal()">✕</button>
 </div>
-
 <div id="modalContent"></div>
-
 </div>
 </div>
 
 <script>
-document.querySelectorAll('.btn,.small-btn').forEach(button=>{
-button.addEventListener('click',function(e){
-
-const ripple=document.createElement('span');
-ripple.classList.add('ripple');
-
-const rect=this.getBoundingClientRect();
-const size=Math.max(rect.width,rect.height);
-
-ripple.style.width=size+'px';
-ripple.style.height=size+'px';
-ripple.style.left=(e.clientX-rect.left-size/2)+'px';
-ripple.style.top=(e.clientY-rect.top-size/2)+'px';
-
-this.appendChild(ripple);
-
-setTimeout(()=>{
-ripple.remove();
-},700);
-
-});
-});
+function toggleDrawer(){
+    document.getElementById('mobileDrawer').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeDrawer(){
+    document.getElementById('mobileDrawer').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
 
 const agendaData = {
-@foreach($events as $tanggal => $items)
+@foreach($events as $tanggal =>$items)
 "{{ $tanggal }}":[
-@foreach($items as $item)
+@foreach($items as$item)
 {
 nama:"{{ $item->nama_kegiatan }}",
 waktu:"{{ $item->waktu }}",
@@ -448,12 +438,9 @@ status:"{{ $item->status }}"
 
 function showEvent(date){
 if(!agendaData[date]) return;
-
 document.getElementById('eventModal').style.display='flex';
 document.getElementById('modalDate').innerText=date;
-
 let html='';
-
 agendaData[date].forEach(item=>{
 html += `
 <div class="item">
@@ -464,7 +451,6 @@ html += `
 </div>
 `;
 });
-
 document.getElementById('modalContent').innerHTML=html;
 }
 
