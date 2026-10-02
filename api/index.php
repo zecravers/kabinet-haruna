@@ -1,5 +1,8 @@
 <?php
 
+// Set timezone ke WIB (Asia/Jakarta) agar perhitungan tanggal & jam akurat
+date_default_timezone_set('Asia/Jakarta');
+
 // 1. Buat folder storage & bootstrap/cache di /tmp (karena Vercel read-only)
 $storagePath = '/tmp/storage';
 foreach ([
@@ -39,6 +42,7 @@ $forcedEnv = [
     'APP_NAME'               => 'Kabinet Haruna',
     'APP_DEBUG'              => 'true',
     'APP_ENV'                => 'production',
+    'APP_TIMEZONE'           => 'Asia/Jakarta',
     'APP_KEY'                => 'base64:8T9vK2mP5qR8wY1zB4nV7cX0lJ3hG6fD9sA2eW5uI8o=',
     'APP_MAINTENANCE_DRIVER' => 'file',
     'LOG_CHANNEL'            => 'stderr',
@@ -57,7 +61,7 @@ $forcedEnv = [
     'APP_EVENTS_CACHE'       => $storagePath . '/bootstrap/cache/events.php',
 ];
 
-// Uji koneksi ke Neon Postgres secara langsung dengan PDO (menggunakan user=endpoint_id.username atau options)
+// Uji koneksi ke Neon Postgres secara langsung dengan PDO
 $usePg = false;
 if (!empty($pgHost)) {
     $pgDb = getenv('POSTGRES_DATABASE') ?: ($_ENV['POSTGRES_DATABASE'] ?? 'neondb');
@@ -67,7 +71,6 @@ if (!empty($pgHost)) {
     $hostParts = explode('.', $pgHost);
     $endpointId = $hostParts[0];
 
-    // Di libpq lama tanpa SNI, Neon mendukung passing endpoint via option PGOPTIONS="-c endpoint=<id>"
     $pgOptionsEnv = "-c endpoint=" . $endpointId;
     $_ENV['PGOPTIONS'] = $pgOptionsEnv;
     $_SERVER['PGOPTIONS'] = $pgOptionsEnv;
@@ -113,7 +116,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->useStoragePath($storagePath);
 
-// 5. Jalankan pembuatan tabel & isi 49 data awal SETELAH Laravel selesai boot
+// 5. Jalankan pembuatan tabel, isi 49 data awal, & AUTO-UPDATE status sesuai tanggal sekarang (WIB)
 $app->booted(function ($app) {
     try {
         $db = $app->make('db')->connection();
@@ -186,6 +189,22 @@ $app->booted(function ($app) {
 
             $db->table('kegiatans')->insert($initialData);
         }
+
+        // AUTO-UPDATE STATUS: Ubah kegiatan yang tanggal/waktunya sudah lewat menjadi 'selesai'
+        $today = date('Y-m-d');
+        $nowTime = date('H:i:s');
+
+        $db->table('kegiatans')
+            ->where('status', 'akan datang')
+            ->where(function ($query) use ($today, $nowTime) {
+                $query->where('tanggal', '<', $today)
+                      ->orWhere(function ($q) use ($today, $nowTime) {
+                          $q->where('tanggal', '=', $today)
+                            ->where('waktu', '<=', $nowTime);
+                      });
+            })
+            ->update(['status' => 'selesai', 'updated_at' => date('Y-m-d H:i:s')]);
+
     } catch (\Throwable $e) {
         // Abaikan jika gagal inisialisasi
     }
@@ -211,7 +230,6 @@ $content = $response->getContent();
 if (is_string($content) && stripos($content, '</head>') !== false) {
     $faviconTags = '<link rel="icon" type="image/png" href="/logo/logo1.png?v=2">'
                  . '<link rel="shortcut icon" type="image/png" href="/logo/logo1.png?v=2">';
-    // Hapus favicon lama jika ada, lalu pasang favicon logo1.png tepat sebelum </head>
     $content = preg_replace('/<link[^>]*rel=["\'](?:shortcut )?icon["\'][^>]*>/i', '', $content);
     $content = str_ireplace('</head>', $faviconTags . "\n</head>", $content);
     $response->setContent($content);
