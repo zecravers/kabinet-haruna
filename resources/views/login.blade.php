@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('logo/logo1.png') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Agenda Organisasi</title>
 
@@ -126,6 +126,22 @@ background:linear-gradient(135deg,#1d4ed8,#3b82f6,#60a5fa);
 filter:drop-shadow(0 4px 10px rgba(59,130,246,0.35));
 }
 
+.title .wave-icon{
+width:28px;
+height:28px;
+fill:#2563eb;
+filter:drop-shadow(0 4px 12px rgba(59,130,246,0.6));
+animation:waveHand 2s infinite ease-in-out;
+transform-origin:70% 70%;
+flex-shrink:0;
+}
+
+@keyframes waveHand{
+0%, 60%, 100%{transform:rotate(0deg);}
+15%, 45%{transform:rotate(14deg);}
+30%{transform:rotate(-8deg);}
+}
+    
 /* ICON */
 .title i{
 color:#2563eb;
@@ -273,9 +289,12 @@ display:none;
 
 <!-- 🔥 PERUBAHAN DI SINI -->
 <div class="title">
-    <i class="fa-solid fa-hand"></i>
+    <svg class="wave-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+        <path d="M407 47c9.4-9.4 24.6-9.4 33.9 0l17.2 17.2c1.9-.1 3.9-.2 5.8-.2h32c26.5 0 48 21.5 48 48v40c0 4.4-3.6 8-8 8s-8-3.6-8-8V112c0-17.7-14.3-32-32-32H464c-11.2 0-21.2 5.8-26.9 14.5L329.4 202.2c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L414.5 71.9c3.1-3.1 3.1-8.2 0-11.3s-8.2-3.1-11.3 0L275.5 188.3c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L380.6 38c9.4-9.4 24.6-9.4 33.9 0zM219.5 124.3L339.2 4.6c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L253.4 158.2c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6zm-56.6 56.6L275 68.8c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9L196.8 214.8c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6zM112 248v-8c0-13.3 10.7-24 24-24s24 10.7 24 24v80c0 8.8 7.2 16 16 16s16-7.2 16-16V176l157.1 157.1c35.1 35.1 35.1 92.1 0 127.3l-7.5 7.5c-46.9 46.9-122.8 46.9-169.7 0l-42.6-42.6C116.8 412.8 112 395.9 112 378.3V248z"/>
+    </svg>
     <span>SELAMAT DATANG!</span>
 </div>
+    
     
 <div class="subtitle">Silakan login untuk melanjutkan ke sistem</div>
 
