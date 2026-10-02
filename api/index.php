@@ -1,6 +1,6 @@
 <?php
 
-// Set timezone ke WIB (Asia/Jakarta) agar perhitungan tanggal & jam akurat
+// Set timezone ke WIB (Asia/Jakarta)
 date_default_timezone_set('Asia/Jakarta');
 
 // 1. Buat folder storage & bootstrap/cache di /tmp (karena Vercel read-only)
@@ -24,10 +24,22 @@ if (!file_exists($sqlitePath)) {
     touch($sqlitePath);
 }
 
-// 3. Cek apakah sudah ada koneksi Postgres (Neon Vercel Storage)
-$pgHost = getenv('POSTGRES_HOST');
-if (empty($pgHost) && isset($_ENV['POSTGRES_HOST'])) {
-    $pgHost = $_ENV['POSTGRES_HOST'];
+// 3. Ambil kredensial Neon Postgres dari Environment Variables Vercel
+$pgHost = getenv('POSTGRES_HOST') ?: ($_ENV['POSTGRES_HOST'] ?? ($_SERVER['POSTGRES_HOST'] ?? null));
+$pgDb   = getenv('POSTGRES_DATABASE') ?: ($_ENV['POSTGRES_DATABASE'] ?? ($_SERVER['POSTGRES_DATABASE'] ?? 'neondb'));
+$pgUser = getenv('POSTGRES_USER') ?: ($_ENV['POSTGRES_USER'] ?? ($_SERVER['POSTGRES_USER'] ?? ''));
+$pgPass = getenv('POSTGRES_PASSWORD') ?: ($_ENV['POSTGRES_PASSWORD'] ?? ($_SERVER['POSTGRES_PASSWORD'] ?? ''));
+
+// Jika ada DATABASE_URL / POSTGRES_URL tapi variabel satuan belum terbaca, ekstrak otomatis
+$rawDbUrl = getenv('POSTGRES_URL') ?: (getenv('DATABASE_URL') ?: ($_ENV['POSTGRES_URL'] ?? ($_ENV['DATABASE_URL'] ?? null)));
+if (empty($pgHost) && !empty($rawDbUrl)) {
+    $parsed = parse_url($rawDbUrl);
+    if (!empty($parsed['host'])) {
+        $pgHost = $parsed['host'];
+        $pgUser = $parsed['user'] ?? $pgUser;
+        $pgPass = $parsed['pass'] ?? $pgPass;
+        $pgDb   = isset($parsed['path']) ? ltrim($parsed['path'], '/') : $pgDb;
+    }
 }
 
 // 4. Bersihkan variabel kosong sisa .env.example di Vercel
@@ -61,33 +73,25 @@ $forcedEnv = [
     'APP_EVENTS_CACHE'       => $storagePath . '/bootstrap/cache/events.php',
 ];
 
-// Uji koneksi ke Neon Postgres secara langsung dengan PDO
-$usePg = false;
+// 5. Konfigurasi Koneksi Permanen Neon Postgres (dengan Endpoint ID langsung di DSN/Password)
+$activeDbDriver = 'sqlite-tmp';
+
 if (!empty($pgHost)) {
-    $pgDb = getenv('POSTGRES_DATABASE') ?: ($_ENV['POSTGRES_DATABASE'] ?? 'neondb');
-    $pgUser = getenv('POSTGRES_USER') ?: ($_ENV['POSTGRES_USER'] ?? '');
-    $pgPass = getenv('POSTGRES_PASSWORD') ?: ($_ENV['POSTGRES_PASSWORD'] ?? '');
-
     $hostParts = explode('.', $pgHost);
-    $endpointId = $hostParts[0];
-
-    $pgOptionsEnv = "-c endpoint=" . $endpointId;
-    $_ENV['PGOPTIONS'] = $pgOptionsEnv;
-    $_SERVER['PGOPTIONS'] = $pgOptionsEnv;
-    putenv("PGOPTIONS=" . $pgOptionsEnv);
-    $_ENV['PGSSLMODE'] = 'require';
-    $_SERVER['PGSSLMODE'] = 'require';
-    putenv("PGSSLMODE=require");
+    $endpointId = $hostParts[0]; // Contoh: ep-lingering-frog-b8m4icez-pooler
 
     unset($_ENV['DATABASE_URL'], $_SERVER['DATABASE_URL'], $_ENV['DB_URL'], $_SERVER['DB_URL']);
     putenv('DATABASE_URL');
     putenv('DB_URL');
 
-    try {
-        $testDsn = "pgsql:host={$pgHost};port=5432;dbname={$pgDb};sslmode=require";
-        $testPdo = new PDO($testDsn, $pgUser, $pgPass, [PDO::ATTR_TIMEOUT => 5]);
-        $usePg = true;
+    // Metode 1: Pass options='--endpoint=<id>' langsung di DSN PDO (Standar libpq)
+    // Metode 2: Pass password dengan prefix "endpoint=<id>$<password>" (Workaround resmi Neon)
+    $dsnWithOptions = "pgsql:host={$pgHost};port=5432;dbname={$pgDb};sslmode=require;options='--endpoint={$endpointId}'";
+    $passWithDollar = "endpoint={$endpointId}\$" . $pgPass;
 
+    try {
+        // Coba Metode 1 (DSN options)
+        $testPdo = new PDO($dsnWithOptions, $pgUser, $pgPass, [PDO::ATTR_TIMEOUT => 5]);
         $forcedEnv['DB_CONNECTION'] = 'pgsql';
         $forcedEnv['DB_HOST']       = $pgHost;
         $forcedEnv['DB_PORT']       = '5432';
@@ -95,12 +99,33 @@ if (!empty($pgHost)) {
         $forcedEnv['DB_USERNAME']   = $pgUser;
         $forcedEnv['DB_PASSWORD']   = $pgPass;
         $forcedEnv['DB_SSLMODE']    = 'require';
-    } catch (\Throwable $e) {
-        $usePg = false;
+        // Gunakan DB_URL dengan query ?options=endpoint%3D... agar PostgresConnector Laravel memakainya
+        $encodedUser = rawurlencode($pgUser);
+        $encodedPass = rawurlencode($pgPass);
+        $dbUrl = "pgsql://{$encodedUser}:{$encodedPass}@{$pgHost}:5432/{$pgDb}?sslmode=require&options=endpoint%3D{$endpointId}";
+        $forcedEnv['DB_URL']       = $dbUrl;
+        $forcedEnv['DATABASE_URL'] = $dbUrl;
+        $activeDbDriver = 'neon-pgsql-dsn';
+    } catch (\Throwable $e1) {
+        try {
+            // Coba Metode 2 (Separator $ pada password agar tidak bentrok dengan ; di PDO DSN)
+            $testDsn2 = "pgsql:host={$pgHost};port=5432;dbname={$pgDb};sslmode=require";
+            $testPdo2 = new PDO($testDsn2, $pgUser, $passWithDollar, [PDO::ATTR_TIMEOUT => 5]);
+            $forcedEnv['DB_CONNECTION'] = 'pgsql';
+            $forcedEnv['DB_HOST']       = $pgHost;
+            $forcedEnv['DB_PORT']       = '5432';
+            $forcedEnv['DB_DATABASE']   = $pgDb;
+            $forcedEnv['DB_USERNAME']   = $pgUser;
+            $forcedEnv['DB_PASSWORD']   = $passWithDollar;
+            $forcedEnv['DB_SSLMODE']    = 'require';
+            $activeDbDriver = 'neon-pgsql-dollar';
+        } catch (\Throwable $e2) {
+            $activeDbDriver = 'sqlite-fallback: ' . $e1->getMessage();
+        }
     }
 }
 
-if (!$usePg) {
+if (strpos($activeDbDriver, 'neon-pgsql') !== 0) {
     $forcedEnv['DB_CONNECTION'] = 'sqlite';
     $forcedEnv['DB_DATABASE']   = $sqlitePath;
 }
@@ -116,8 +141,20 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 $app->useStoragePath($storagePath);
 
-// 5. Jalankan pembuatan tabel, isi 49 data awal, & AUTO-UPDATE status sesuai tanggal sekarang (WIB)
-$app->booted(function ($app) {
+// 6. Jalankan pembuatan tabel, isi 49 data awal, & AUTO-UPDATE status sesuai tanggal sekarang (WIB)
+$app->booted(function ($app) use ($forcedEnv) {
+    // Pastikan config database Laravel memakai driver yang sudah terverifikasi
+    if ($forcedEnv['DB_CONNECTION'] === 'pgsql') {
+        $hostParts = explode('.', $forcedEnv['DB_HOST']);
+        $endpointId = $hostParts[0];
+        $app['config']->set('database.default', 'pgsql');
+        $app['config']->set('database.connections.pgsql.host', $forcedEnv['DB_HOST'] . ";options='--endpoint={$endpointId}'");
+        $app['config']->set('database.connections.pgsql.database', $forcedEnv['DB_DATABASE']);
+        $app['config']->set('database.connections.pgsql.username', $forcedEnv['DB_USERNAME']);
+        $app['config']->set('database.connections.pgsql.password', $forcedEnv['DB_PASSWORD']);
+        $app['config']->set('database.connections.pgsql.sslmode', 'require');
+    }
+
     try {
         $db = $app->make('db')->connection();
         $schema = $db->getSchemaBuilder();
@@ -190,7 +227,7 @@ $app->booted(function ($app) {
             $db->table('kegiatans')->insert($initialData);
         }
 
-        // AUTO-UPDATE STATUS: Ubah kegiatan yang tanggal/waktunya sudah lewat menjadi 'selesai'
+        // AUTO-UPDATE STATUS: Hanya ubah kegiatan yang tanggalnya benar-benar sudah lewat dari hari ini (WIB)
         $today = date('Y-m-d');
         $nowTime = date('H:i:s');
 
@@ -224,6 +261,7 @@ if (in_array($request->getPathInfo(), ['/favicon.ico', '/favicon.png'], true)) {
 }
 
 $response = $app->handle($request);
+$response->headers->set('X-DB-Mode', $activeDbDriver);
 
 // Otomatis suntikkan tag favicon logo1.png ke dalam <head> di SEMUA halaman HTML
 $content = $response->getContent();
